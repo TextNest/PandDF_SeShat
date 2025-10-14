@@ -1,0 +1,160 @@
+/* // ============================================
+// 📄 6. src/app/(user)/chat/[productId]/chat-page.module.css
+// ============================================ */
+
+.chatPage {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 56px);
+  background-color: var(--bg-secondary);
+}
+
+.productInfo {
+  padding: var(--spacing-md);
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.productId {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* 메시지 영역 */
+.messageArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  /* iOS 스크롤 부드럽게 */
+  -webkit-overflow-scrolling: touch;
+}
+
+.message {
+  display: flex;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.userMessage {
+  justify-content: flex-end;
+}
+
+.botMessage {
+  justify-content: flex-start;
+}
+
+.messageContent {
+  max-width: 75%;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  word-wrap: break-word;
+  line-height: var(--line-height-relaxed);
+}
+
+.userMessage .messageContent {
+  background-color: var(--color-primary);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.botMessage .messageContent {
+  background-color: white;
+  color: var(--text-primary);
+  border-bottom-left-radius: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* 추천 질문 */
+.suggestions {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.suggestionChip {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: white;
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  /* 터치 영역 확보 */
+  min-height: 44px;
+}
+
+.suggestionChip:active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* 입력 영역 */
+.inputArea {
+  padding: var(--spacing-md);
+  background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  /* 하단 Safe Area */
+  padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+}
+
+.input {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-base);
+  background-color: var(--bg-secondary);
+  outline: none;
+  /* iOS 기본 스타일 제거 */
+  -webkit-appearance: none;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  background-color: white;
+}
+
+.sendButton {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.sendButton:disabled {
+  background-color: var(--color-gray-300);
+  cursor: not-allowed;
+}
+
+.sendButton:active:not(:disabled) {
+  transform: scale(0.95);
+}
