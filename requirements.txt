@@ -1,0 +1,27 @@
+# Backend Framework
+fastapi
+uvicorn[standard]
+jinja2
+
+# LangChain
+langchain
+langgraph
+langchain-openai
+langchain-community
+
+# OpenAI
+openai
+
+# Vector Store
+faiss-cpu
+
+# Document Processing (PDF, Images, OCR)
+PyMuPDF
+Pillow
+pytesseract 
+
+# Utilities
+python-dotenv
+
+# Development / Notebook Environment
+ipython

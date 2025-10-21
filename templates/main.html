@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 챗봇 서비스</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .product-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* 버튼 사이 간격 */
+        }
+        .product-button {
+            border: 1px solid #007bff;
+            background-color: #fff;
+            color: #007bff;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            width: 300px; /* 버튼 너비 고정 */
+        }
+        .product-button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI 제품 설명 챗봇</h1>
+        <p>문의할 제품을 선택하세요.</p>
+        <div class="product-list">
+            <button class="product-button" onclick="goToChat('SDH-E18KPA')">SDH-E18KPA</button>
+            <button class="product-button" onclick="goToChat('SIF-14SSWT')">SIF-14SSWT</button>
+            <button class="product-button" onclick="goToChat('SDH-E45KPA')">SDH-E45KPA</button>
+        </div>
+    </div>
+
+    <script>
+        const goToChat = (pid) => {
+            window.location.href = `/chat/${pid}`;
+        };
+    </script>
+</body>
+</html>
