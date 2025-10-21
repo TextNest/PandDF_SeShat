@@ -1,0 +1,26 @@
+{
+  "name": "ar-measure-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "dev:host": "cross-env HOST=0.0.0.0 next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "mysql2": "^3.15.2",
+    "next": "13.5.6",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "three": "^0.158.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.1",
+    "@types/react": "^18.2.14",
+    "@types/three": "^0.159.0",
+    "cross-env": "^10.1.0",
+    "typescript": "^5.1.0"
+  }
+}
