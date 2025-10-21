@@ -1,7 +1,7 @@
 // ============================================
-// 📄 1. src/app/(user)/chat/[productId]/page.tsx
+// 📄 2. src/app/(user)/chat/[productId]/page.tsx (업데이트)
 // ============================================
-// 개선된 모바일 채팅 페이지 (컴포넌트 활용)
+// 세션 기능이 통합된 채팅 페이지
 // ============================================
 
 'use client';
@@ -12,6 +12,7 @@ import { useChat } from '@/features/chat/hooks/useChat';
 import ChatMessage from '@/components/chat/ChatMessage/ChatMessage';
 import SuggestedQuestions from '@/components/chat/SuggestedQuestions/SuggestedQuestions';
 import TypingIndicator from '@/components/chat/TypingIndicator/TypingIndicator';
+import SessionHistory from '@/components/chat/SessionHistory/SessionHistory';
 import styles from './chat-page.module.css';
 
 const SUGGESTED_QUESTIONS = [
@@ -31,7 +32,14 @@ export default function ChatPage({
     messages, 
     isLoading, 
     sendMessage, 
-    messagesEndRef 
+    messagesEndRef,
+    // 세션 관련
+    sessionId,
+    sessions,
+    isSessionLoading,
+    loadSession,
+    startNewSession,
+    deleteSession,
   } = useChat(params.productId);
 
   const handleSend = async () => {
@@ -52,8 +60,28 @@ export default function ChatPage({
     }
   };
 
+  // 세션 로딩 중
+  if (isSessionLoading) {
+    return (
+      <div className={styles.chatPage}>
+        <div className={styles.loadingContainer}>
+          <p>대화를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.chatPage}>
+      {/* 세션 히스토리 사이드바 */}
+      <SessionHistory
+        sessions={sessions}
+        currentSessionId={sessionId}
+        onSelectSession={loadSession}
+        onNewSession={startNewSession}
+        onDeleteSession={deleteSession}
+      />
+
       {/* 제품 정보 헤더 */}
       <div className={styles.productInfo}>
         <p className={styles.productId}>제품: {params.productId}</p>
@@ -65,10 +93,8 @@ export default function ChatPage({
           <ChatMessage key={message.id} message={message} />
         ))}
         
-        {/* 로딩 인디케이터 */}
         {isLoading && <TypingIndicator />}
         
-        {/* 스크롤 앵커 */}
         <div ref={messagesEndRef} />
       </div>
 

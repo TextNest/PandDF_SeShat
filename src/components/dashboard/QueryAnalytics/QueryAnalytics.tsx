@@ -9,7 +9,9 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import styles from './QueryAnalytics.module.css';
 
-const data = [
+type AnalyticsPoint = { name?: string; date?: string; queries: number };
+
+const defaultData: AnalyticsPoint[] = [
   { name: '월', queries: 120 },
   { name: '화', queries: 185 },
   { name: '수', queries: 156 },
@@ -19,7 +21,8 @@ const data = [
   { name: '일', queries: 87 },
 ];
 
-export default function QueryAnalytics() {
+export default function QueryAnalytics({ data }: { data?: { date: string; queries: number }[] }) {
+  const chartData = data && data.length > 0 ? data.map(d => ({ name: d.date, queries: d.queries })) : defaultData;
   return (
     <div className={styles.card}>
       <div className={styles.header}>
@@ -33,7 +36,7 @@ export default function QueryAnalytics() {
       
       <div className={styles.chartWrapper}>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
+          <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
             <XAxis 
               dataKey="name" 

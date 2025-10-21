@@ -1,0 +1,115 @@
+/* ============================================
+   📄 src/app/admin/login/login-page.module.css
+   ============================================ */
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+  padding: var(--spacing-lg);
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.circle1,
+.circle2 {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.circle1 {
+  width: 500px;
+  height: 500px;
+  top: -250px;
+  right: -250px;
+}
+
+.circle2 {
+  width: 300px;
+  height: 300px;
+  bottom: -150px;
+  left: -150px;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xl);
+  width: 100%;
+  max-width: 420px;
+}
+
+.logo {
+  text-align: center;
+  color: white;
+}
+
+.logo h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-sm);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.logo p {
+  font-size: var(--font-size-base);
+  opacity: 0.9;
+}
+
+.footer {
+  text-align: center;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-base);
+  opacity: 0.8;
+}
+
+.backButton:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .page {
+    padding: var(--spacing-md);
+  }
+
+  .logo h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .circle1 {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -150px;
+  }
+
+  .circle2 {
+    width: 200px;
+    height: 200px;
+    bottom: -100px;
+    left: -100px;
+  }
+}

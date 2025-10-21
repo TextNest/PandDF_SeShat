@@ -1,7 +1,7 @@
 // ============================================
-// 📄 4. src/features/chat/hooks/useChat.ts
+// 📄 1. src/features/chat/hooks/useChat.ts (업데이트)
 // ============================================
-// 채팅 커스텀 훅
+// 세션 저장 기능이 추가된 채팅 훅
 // ============================================
 
 'use client';
@@ -10,6 +10,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Message, SendMessageRequest } from '@/types/chat.types';
 import apiClient from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
+import { useChatSession } from './useChatSession';
 
 export function useChat(productId: string) {
   const [messages, setMessages] = useState<Message[]>([
@@ -23,6 +24,24 @@ export function useChat(productId: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 세션 관리 훅
+  const {
+    sessionId,
+    sessions,
+    isLoading: isSessionLoading,
+    saveMessages,
+    loadSession,
+    startNewSession,
+    deleteSession,
+  } = useChatSession(productId);
+
+  // 메시지 변경 시 자동 저장
+  useEffect(() => {
+    if (messages.length > 1 && sessionId) {
+      saveMessages(messages);
+    }
+  }, [messages, sessionId, saveMessages]);
 
   // 스크롤 하단으로 이동
   const scrollToBottom = useCallback(() => {
@@ -52,6 +71,7 @@ export function useChat(productId: string) {
       const request: SendMessageRequest = {
         productId,
         message: content.trim(),
+        sessionId,
       };
 
       const response = await apiClient.post(
@@ -71,7 +91,6 @@ export function useChat(productId: string) {
     } catch (err: any) {
       setError(err.response?.data?.message || '오류가 발생했습니다.');
       
-      // 에러 메시지 표시
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         type: 'bot',
@@ -82,9 +101,30 @@ export function useChat(productId: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [productId]);
+  }, [productId, sessionId]);
 
-  // 대화 초기화
+  // 세션 불러오기
+  const handleLoadSession = useCallback(async (loadSessionId: string) => {
+    const loadedMessages = await loadSession(loadSessionId);
+    if (loadedMessages.length > 0) {
+      setMessages(loadedMessages);
+    }
+  }, [loadSession]);
+
+  // 새 대화 시작
+  const handleNewSession = useCallback(async () => {
+    await startNewSession();
+    setMessages([
+      {
+        id: '1',
+        type: 'bot',
+        content: '안녕하세요! 무엇을 도와드릴까요?',
+        timestamp: new Date(),
+      }
+    ]);
+  }, [startNewSession]);
+
+  // 대화 초기화 (현재 세션만)
   const clearMessages = useCallback(() => {
     setMessages([
       {
@@ -103,5 +143,12 @@ export function useChat(productId: string) {
     sendMessage,
     clearMessages,
     messagesEndRef,
+    // 세션 관련
+    sessionId,
+    sessions,
+    isSessionLoading,
+    loadSession: handleLoadSession,
+    startNewSession: handleNewSession,
+    deleteSession,
   };
 }

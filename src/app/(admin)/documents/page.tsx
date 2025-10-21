@@ -10,7 +10,6 @@ import { useState } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
 import Link from 'next/link';
 import Button from '@/components/ui/Button/Button';
-import Input from '@/components/ui/Input/Input';
 import DocumentList from '@/components/document/DocumentList/DocumentList';
 import { Document } from '@/types/document.types';
 import styles from './documents-page.module.css';

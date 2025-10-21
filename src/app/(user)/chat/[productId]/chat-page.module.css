@@ -158,3 +158,11 @@
 .sendButton:active:not(:disabled) {
   transform: scale(0.95);
 }
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: var(--text-secondary);
+}

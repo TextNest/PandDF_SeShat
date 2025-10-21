@@ -7,7 +7,9 @@
 import { BarChart3 } from 'lucide-react';
 import styles from './TopQuestions.module.css';
 
-const topQuestions = [
+type TopQuestionItem = { id?: string; question: string; count: number };
+
+const defaultTopQuestions: TopQuestionItem[] = [
   { question: '제품 사용법이 궁금해요', count: 234 },
   { question: '고장이 났어요', count: 187 },
   { question: 'A/S는 어떻게 받나요?', count: 156 },
@@ -15,8 +17,9 @@ const topQuestions = [
   { question: '제품 보증 기간은?', count: 128 },
 ];
 
-export default function TopQuestions() {
-  const maxCount = Math.max(...topQuestions.map(q => q.count));
+export default function TopQuestions({ questions }: { questions?: { id?: string; question: string; count: number }[] }) {
+  const list = questions && questions.length ? questions : defaultTopQuestions;
+  const maxCount = Math.max(...list.map(q => q.count));
 
   return (
     <div className={styles.card}>
@@ -28,13 +31,13 @@ export default function TopQuestions() {
       </div>
       
       <div className={styles.list}>
-        {topQuestions.map((item, index) => (
-          <div key={index} className={styles.item}>
+        {list.map((item, index) => (
+          <div key={(item as any).id ?? index} className={styles.item}>
             <div className={styles.rank}>{index + 1}</div>
             <div className={styles.content}>
               <div className={styles.question}>{item.question}</div>
               <div className={styles.barWrapper}>
-                <div 
+                <div
                   className={styles.bar}
                   style={{ width: `${(item.count / maxCount) * 100}%` }}
                 />
