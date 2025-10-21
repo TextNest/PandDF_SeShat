@@ -4,48 +4,59 @@
 // 최근 활동 로그
 // ============================================
 
-import { Clock, FileText, MessageSquare, Upload } from 'lucide-react';
+import { Clock, FileText, MessageSquare } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/utils/format';
+import type { RecentActivityItem } from '@/features/dashboard/hooks/useDashboardData';
 import styles from './RecentActivity.module.css';
 
-const activities = [
+type DisplayActivity = {
+  id: string;
+  type: 'document' | 'query' | 'faq';
+  title: string;
+  description?: string;
+  timestamp: string;
+};
+
+const defaultActivities: DisplayActivity[] = [
   {
-    id: 1,
-    type: 'message',
+    id: '1',
+    type: 'document',
     title: '새로운 질문',
     description: '제품 사용법이 궁금해요',
-    timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5분 전
+    timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(), // 5분 전
   },
   {
-    id: 2,
-    type: 'upload',
+    id: '2',
+    type: 'document',
     title: '문서 업로드',
     description: '세탁기_WM-2024.pdf',
-    timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30분 전
+    timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(), // 30분 전
   },
   {
-    id: 3,
-    type: 'message',
+    id: '3',
+    type: 'query',
     title: '새로운 질문',
     description: '고장이 났어요',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2시간 전
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2시간 전
   },
   {
-    id: 4,
+    id: '4',
     type: 'document',
     title: '문서 갱신',
     description: '냉장고_RF-2024.pdf',
-    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5시간 전
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5시간 전
   },
 ];
 
 const iconMap = {
-  message: MessageSquare,
-  upload: Upload,
+  query: MessageSquare,
   document: FileText,
+  faq: FileText,
 };
 
-export default function RecentActivity() {
+export default function RecentActivity({ activities }: { activities?: RecentActivityItem[] }) {
+  const items = activities && activities.length > 0 ? activities : defaultActivities;
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
@@ -57,20 +68,22 @@ export default function RecentActivity() {
       </div>
       
       <div className={styles.timeline}>
-        {activities.map((activity) => {
-          const Icon = iconMap[activity.type as keyof typeof iconMap];
-          
+        {items.map((activity) => {
+          const typeKey = (activity as any).type || 'query';
+          const Icon = iconMap[typeKey as keyof typeof iconMap] || MessageSquare;
+          const ts = (activity as any).timestamp ? new Date((activity as any).timestamp) : undefined;
+
           return (
-            <div key={activity.id} className={styles.item}>
+            <div key={(activity as any).id} className={styles.item}>
               <div className={styles.iconWrapper}>
                 <Icon size={16} />
               </div>
               <div className={styles.content}>
-                <div className={styles.itemTitle}>{activity.title}</div>
-                <div className={styles.description}>{activity.description}</div>
+                <div className={styles.itemTitle}>{(activity as any).title}</div>
+                {(activity as any).description && <div className={styles.description}>{(activity as any).description}</div>}
               </div>
               <time className={styles.timestamp}>
-                {formatRelativeTime(activity.timestamp)}
+                {ts ? formatRelativeTime(ts) : ''}
               </time>
             </div>
           );

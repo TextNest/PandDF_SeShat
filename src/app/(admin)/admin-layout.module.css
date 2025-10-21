@@ -1,8 +1,6 @@
-/* // ============================================
-// 📄 5. src/app/(admin)/admin-layout.module.css
-// ============================================
-// 관리자 레이아웃 스타일
-// ============================================ */
+/* ============================================
+   📄 src/app/(admin)/admin-layout.module.css (Updated)
+   ============================================ */
 
 .adminLayout {
   display: flex;
@@ -37,7 +35,74 @@
 .userMenu {
   display: flex;
   align-items: center;
+  gap: var(--spacing-lg);
+}
+
+/* 사용자 정보 */
+.userInfo {
+  display: flex;
+  align-items: center;
   gap: var(--spacing-md);
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.userRole {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+/* 로그아웃 버튼 */
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.logoutButton:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+/* 로딩 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: var(--font-size-lg);
   color: var(--text-secondary);
 }
 
@@ -54,5 +119,17 @@
   
   .content {
     padding: var(--spacing-md);
+  }
+
+  .header {
+    padding: 0 var(--spacing-md);
+  }
+
+  .userDetails {
+    display: none;
+  }
+
+  .logoutButton span {
+    display: none;
   }
 }
