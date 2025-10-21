@@ -18,7 +18,6 @@ async def websocket_endpoint(websocket:WebSocket,pid:str):
 
     await websocket.accept()
     print("연결 성공")  
-    print(f"✅ 연결 성공! 전달받은 PID: {pid}")
     try:
         session_id = str(random.randint(100000,999999))
         agent = ChatBotAgent(product_id = pid,session_id = session_id)

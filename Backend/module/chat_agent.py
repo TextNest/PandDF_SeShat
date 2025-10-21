@@ -8,10 +8,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from module.qa_service import HybridRAGChain
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
-os.environ["OPENAI_API_KEY"] = os.getenv("openai")
+from core.config import load
+load.envs()
 
 
 class AgentState(MessagesState):
