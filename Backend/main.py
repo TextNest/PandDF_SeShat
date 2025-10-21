@@ -26,9 +26,10 @@ app.add_middleware(
 # app.mount("/static/images", StaticFiles(directory="page_images"), name="static_images")
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/",response_class=HTMLResponse)
+@app.get("/",response_class=HTMLResponse) # 리액트 연결 후 수정 예정 현재는 MVP를 위해서 임시로 작성 이후 router-> api로 풀더 이름 변경
 async def main_page(request:Request):
     return templates.TemplateResponse("main.html",{"request":request})
+
 
 app.include_router(chat.router, tags=["chat"])
             
