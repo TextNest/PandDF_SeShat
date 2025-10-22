@@ -83,7 +83,10 @@ export function useFurniturePlacement(sceneRef: React.RefObject<Scene | null>, s
     const update = (reticlePosition: Vector3 | null) => {
         if (previewBoxRef.current) {
             if (reticlePosition) {
+                // 박스의 높이의 절반만큼 y 위치를 올려서 박스의 밑면이 바닥에 닿도록 합니다.
+                const boxHeight = (previewBoxRef.current.geometry as BoxGeometry).parameters.height;
                 previewBoxRef.current.position.copy(reticlePosition);
+                previewBoxRef.current.position.y += boxHeight / 2;
                 previewBoxRef.current.visible = true;
             } else {
                 previewBoxRef.current.visible = false;

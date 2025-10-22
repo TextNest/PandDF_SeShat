@@ -13,8 +13,7 @@ export function useObjectRotation(
   const isRotatingRef = useRef(false); // 현재 회전 중인지 여부를 저장
   const didDragRef = useRef(false); // 드래그 동작이 있었는지 여부를 저장
   const touchStartXRef = useRef(0); // 터치 시작 지점의 X 좌표
-  const touchStartYRef = useRef(0); // 터치 시작 지점의 Y 좌표
-  const startRotationRef = useRef({ x: 0, y: 0 }); // 회전 시작 시의 객체 회전 값
+  const startRotationRef = useRef({ y: 0 }); // 회전 시작 시의 객체 회전 값
 
   useEffect(() => {
     const handleRotationStart = (e: TouchEvent) => {
@@ -28,28 +27,24 @@ export function useObjectRotation(
       isRotatingRef.current = true;
       didDragRef.current = false; // 드래그 상태 초기화
       touchStartXRef.current = e.touches[0].clientX;
-      touchStartYRef.current = e.touches[0].clientY;
-      startRotationRef.current = { y: objectRef.current.rotation.y, x: objectRef.current.rotation.x };
+      startRotationRef.current = { y: objectRef.current.rotation.y };
     };
 
     const handleRotationMove = (e: TouchEvent) => {
       if (!isRotatingRef.current || e.touches.length !== 1 || !objectRef.current) return;
 
       const deltaX = e.touches[0].clientX - touchStartXRef.current;
-      const deltaY = e.touches[0].clientY - touchStartYRef.current;
 
       // 작은 움직임은 드래그로 간주하지 않음 (탭으로 처리될 수 있도록)
-      if (Math.abs(deltaX) < 5 && Math.abs(deltaY) < 5) {
+      if (Math.abs(deltaX) < 5) {
         return;
       }
 
       didDragRef.current = true; // 드래그 발생으로 표시
 
       const rotationY = startRotationRef.current.y + (deltaX / window.innerWidth) * Math.PI;
-      const rotationX = startRotationRef.current.x + (deltaY / window.innerHeight) * Math.PI;
 
       objectRef.current.rotation.y = rotationY;
-      objectRef.current.rotation.x = rotationX;
     };
 
     const handleRotationEnd = () => {
