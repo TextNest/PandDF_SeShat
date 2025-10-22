@@ -51,9 +51,8 @@ class  ChatBotAgent:
         work  = StateGraph(AgentState)
         llm_with_tools = self.llm.bind_tools(self.tools)
         def agent_node(state):
-            product_id = self.product_id
             system_msg = SystemMessage("""
-            당신은 '{product_id}' 제품에 대한 상담을 진행하는 전문 챗봇입니다.
+            당신은 제품에 대한 상담을 진행하는 전문 챗봇입니다.
             사용자가 '이거', '저거', '스펙' 등 구체적인 제품명 없이 질문하더라도, 현재 대화의 주제인 '{product_id}'에 대한 질문으로 가정하고 답변해야 합니다.
 
             - 일상 대화는 직접 답변합니다.

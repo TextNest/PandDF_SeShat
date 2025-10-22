@@ -14,6 +14,12 @@ class load:
         import os  
         load_dotenv()
         os.environ["OPENAI_API_KEY"] = os.getenv("openai")
+        DB_HOST = os.getenv("DB_HOST")
+        DB_USER = os.getenv("DB_USER")
+        DB_PASSWORD = os.getenv("DB_PASSWORD")
+        DB_DATABASE = os.getenv("DB_DATABASE")
+        DB_PORT = os.getenv("DB_PORT")
+        return DB_HOST,DB_USER,DB_PASSWORD,DB_DATABASE,DB_PORT
         
         
 

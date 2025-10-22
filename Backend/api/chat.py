@@ -25,7 +25,7 @@ async def websocket_endpoint(websocket:WebSocket,pid:str):
         while True:
             data = await websocket.receive_text()
             async for token in agent.stream_chat(data):
-                await websocket.send_json({"type": "bot", "content": token,"is_stream":True})
+                await websocket.send_json({"type": "token", "content": token}) ## type bot:normal , type token : stream
             await websocket.send_json({"type":"stream_end"})
     except WebSocketDisconnect:
         print("연결 종료")

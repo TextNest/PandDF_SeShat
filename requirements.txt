@@ -25,3 +25,7 @@ python-dotenv
 
 # Development / Notebook Environment
 ipython
+
+# Database
+SQLAlchemy
+aiomysql
