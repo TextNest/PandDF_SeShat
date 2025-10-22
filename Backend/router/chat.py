@@ -9,9 +9,7 @@ templates = Jinja2Templates(directory="templates")
 
 router = APIRouter()
 
-@router.get("/chat/{pid}",response_class=HTMLResponse)
-async def chat_page(request:Request,pid:str):
-    return templates.TemplateResponse("chat.html",{"request":request,"pid":pid})
+
 
 @router.websocket("/ws/{pid}")
 async def websocket_endpoint(websocket:WebSocket,pid:str):
@@ -21,16 +19,14 @@ async def websocket_endpoint(websocket:WebSocket,pid:str):
     try:
         session_id = str(random.randint(100000,999999))
         agent = ChatBotAgent(product_id = pid,session_id = session_id)
-        await websocket.send_json({"type":"bot", "message": f"{pid} 상품의 정보 입니다."})
+        await websocket.send_json({"type":"bot", "content": f"{pid} 상품의 정보 입니다."})
         await asyncio.sleep(0.5)
-        await websocket.send_json({"type":"bot","message":"무엇을 도와드릴까요?"})
+        await websocket.send_json({"type":"bot","content":"무엇을 도와드릴까요?"})
         while True:
             data = await websocket.receive_text()
-            print(f"User message: {data}")
-            answer = agent.chat(data)
-            print(answer)
-            await websocket.send_json({"type":"bot","message":answer["answer"]})
-
+            async for token in agent.stream_chat(data):
+                await websocket.send_json({"type": "bot", "content": token,"is_stream":True})
+            await websocket.send_json({"type":"stream_end"})
     except WebSocketDisconnect:
         print("연결 종료")
 

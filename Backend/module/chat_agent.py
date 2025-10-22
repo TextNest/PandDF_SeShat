@@ -59,7 +59,7 @@ class  ChatBotAgent:
             - 일상 대화는 직접 답변합니다.
             - 제품과 관련된 질문(기능, 스펙, 사용법 등)은 반드시 'product_qa_tool'을 사용해서 답변해야 합니다.
             """)
-            response = llm_with_tools.invoke([system_msg]+state["messages"])
+            response = llm_with_tools.with_config({"run_name":"final_answer"}).invoke([system_msg]+state["messages"])
             return {"messages":[response]}
 
         def tool_node(state):
@@ -94,3 +94,18 @@ class  ChatBotAgent:
         result = self.graph.invoke(initial_state,config=config)
         final_message = result["messages"][-1]
         return {"answer":final_message.content}
+    async def stream_chat(self,query:str):
+        config = {"configurable":{"thread_id":self.session_id}}
+        initial_state = {
+            "messages":[HumanMessage(content=query)],
+            "product_id":self.product_id,
+            "session_id":self.session_id
+        }
+        async for event in self.graph.astream_events(
+            initial_state, config=config, version="v1"
+        ):
+            kind = event["event"]
+            if (kind == "on_chat_model_stream" and event["name"]=="final_answer"):
+                chunk = event["data"]["chunk"]
+                if content := chunk.content:    
+                    yield content
