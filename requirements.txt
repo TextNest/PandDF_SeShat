@@ -2,12 +2,14 @@
 fastapi
 uvicorn[standard]
 jinja2
+websockets
 
 # LangChain
 langchain
 langgraph
 langchain-openai
 langchain-community
+langchain-core
 
 # OpenAI
 openai
@@ -22,6 +24,8 @@ pytesseract
 
 # Utilities
 python-dotenv
+pydantic
+requests
 
 # Development / Notebook Environment
 ipython
@@ -29,3 +33,8 @@ ipython
 # Database
 SQLAlchemy
 aiomysql
+
+#auth
+python-jose[cryptography]
+passlib
+bcrypt==4.0.1

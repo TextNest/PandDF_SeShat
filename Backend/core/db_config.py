@@ -8,6 +8,7 @@ DB_HOST,DB_USER,DB_PASSWORD,DB_DATABASE,DB_PORT = load.envs()
 
 
 DATABASE_URL = f"mysql+aiomysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_DATABASE}"
+print(DATABASE_URL)
 
 engine: Engine = create_async_engine(
     DATABASE_URL, 

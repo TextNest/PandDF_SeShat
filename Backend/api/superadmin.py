@@ -6,4 +6,4 @@ from core.db_config import get_session
 
 router = APIRouter()
 
-@router.get("/dashboard")
+# @router.get("/dashboard")

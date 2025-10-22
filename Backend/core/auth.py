@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,timezone
 from typing import  Dict, Any, Optional
 from fastapi import Depends, Header, HTTPException
 from jose import jwt
@@ -12,15 +12,24 @@ ALGORITHM = "HS256"
 Access_Token_Expire = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"],deprecated = "auto")
-comapnyInfo = Dict[str,str]
+companyInfo = Dict[str,str]
 
 def create_access_token(data:dict,expires_delta:Optional[timedelta]=None):
     to_encode = data.copy()
+    now_utc = datetime.now(timezone.utc).replace(tzinfo=timezone.utc)
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=Access_Token_Expire)
-    to_encode.update({"exp":expire})
+        expire = datetime.now(timezone.utc) + timedelta(minutes=Access_Token_Expire)
+    expire_utc = expire.replace(tzinfo=timezone.utc)
+    
+    # 🌟 디버깅 출력 🌟
+    print("\n--- JWT 시간 디버깅 정보 ---")
+    print(f"현재 시각 (UTC): {now_utc.isoformat()}")
+    print(f"만료 시각 (UTC): {expire_utc.isoformat()}")
+    print(f"만료 시간 차이: {expire_utc - now_utc}")
+    print("----------------------------\n")
+    to_encode.update({"exp":expire.timestamp()})
     encode_jwt = jwt.encode(to_encode,SECRET_KEY,algorithm=ALGORITHM)
     return encode_jwt
 
@@ -30,7 +39,7 @@ def verify_password(plain_password:str,hashed_password:str)->bool:
 def get_password_hash(password:str):
     return pwd_context.hash(password)
 
-def get_current_user(authorization: Optional[str] = Header(None))-> comapnyInfo:
+def get_current_user(authorization: Optional[str] = Header(None))-> companyInfo:
     if not authorization or not authorization.startswith("Bearer"):
         raise HTTPException(status_code =401, detail ="인증 실패 : 토큰 누락이 되었거나 인증이 실패되었습니다.")
     
