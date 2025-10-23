@@ -74,7 +74,7 @@ async def login_with_token(login_data:LoginRequest,session:AsyncSession=Depends(
     if not verify_password(login_data.pw,user_row["pw_hash"]):
         raise HTTPException(status_code=401,detail="비밀번호가 일치하지 않습니다.")
     
-    # from time import timedelta
+    from datetime import timedelta
     access_token = create_access_token(
         data ={
             "id":login_data.user_id,    
@@ -85,3 +85,4 @@ async def login_with_token(login_data:LoginRequest,session:AsyncSession=Depends(
         "access_token":access_token,
         "token_type":"Bearer"
     }
+companyInfo = Dict[str,str]

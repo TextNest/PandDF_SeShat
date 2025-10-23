@@ -4,6 +4,7 @@ import asyncio
 import random
 from fastapi.templating import Jinja2Templates
 from module.chat_agent import ChatBotAgent
+import time
 templates = Jinja2Templates(directory="templates")
 
 
@@ -24,9 +25,16 @@ async def websocket_endpoint(websocket:WebSocket,pid:str):
         await websocket.send_json({"type":"bot","content":"무엇을 도와드릴까요?"})
         while True:
             data = await websocket.receive_text()
-            async for token in agent.stream_chat(data):
-                await websocket.send_json({"type": "token", "content": token}) ## type bot:normal , type token : stream
-            await websocket.send_json({"type":"stream_end"})
+            start = time.time()
+            answer = agent.chat(data)
+            end  = time.time()
+            total_time = end - start 
+            print(f"{total_time:0.2f}초 걸렸습니다.")
+            await websocket.send_json({"type":"bot","content":answer["answer"]})
+
+            # async for token in agent.stream_chat(data):
+            #     await websocket.send_json({"type": "token", "content": token}) ## type bot:normal , type token : stream
+            # await websocket.send_json({"type":"stream_end"})
     except WebSocketDisconnect:
         print("연결 종료")
 

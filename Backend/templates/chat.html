@@ -78,7 +78,7 @@
                 // 백엔드에서 받은 봇 메시지를 화면에 추가
                 // 백엔드에서 보낸 텍스트는 마크다운으로 간주
                 addMessageToChat('bot', { 
-                    text: serverData.message, 
+                    text: serverData.content, 
                     image: serverData.img, // 백엔드 키는 'image'
                     isMarkdown: true 
                 });
