@@ -5,7 +5,7 @@ jinja2
 websockets
 
 # LangChain
-langchain
+langchain==0.3.27
 langgraph
 langchain-openai
 langchain-community
