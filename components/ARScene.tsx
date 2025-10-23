@@ -1,57 +1,106 @@
-import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
+// /components/ARScene.tsx
+// WebXR을 사용하여 AR 렌더링과 상호작용을 처리하는 핵심 컴포넌트입니다.
+// Three.js를 직접 제어하고, 각종 커스텀 훅을 사용하여 기능별 로직을 통합합니다.
+
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Scene, PerspectiveCamera, WebGLRenderer, HemisphereLight, Mesh, RingGeometry, MeshBasicMaterial, Vector3 } from 'three';
 import { useObjectRotation } from '../hooks/useObjectRotation';
 import { useMeasurement } from '../hooks/useMeasurement';
 import { useFurniturePlacement } from '../hooks/useFurniturePlacement';
 import styles from './ARScene.module.css';
-
-// 부모 컴포넌트에서 호출 가능한 함수들
-export interface ARSceneHandles {
-  startAR: () => Promise<void>;
-  endAR: () => void;
-  measurement: ReturnType<typeof useMeasurement>;
-  furniture: ReturnType<typeof useFurniturePlacement>;
-}
+import { COLORS } from '../lib/constants';
+import { useStore } from '../store/store';
+import { shallow } from 'zustand/shallow';
 
 interface ARSceneProps {
   uiOverlayRef: React.RefObject<HTMLDivElement | null>;
   lastUITouchTimeRef: React.RefObject<number>;
-  onSessionStart: () => void;
-  onSessionEnd: () => void;
 }
 
-const ARScene = forwardRef<ARSceneHandles, ARSceneProps>(({ uiOverlayRef, lastUITouchTimeRef, onSessionStart, onSessionEnd }, ref) => {
+const ARScene: React.FC<ARSceneProps> = ({ uiOverlayRef, lastUITouchTimeRef }) => {
+  // --- Zustand Store ---
+  const isARActive = useStore((state) => state.isARActive);
+  const setARActive = useStore((state) => state.setARActive);
+  const selectedFurniture = useStore((state) => state.selectedFurniture);
+  const clearFurnitureCounter = useStore((state) => state.clearFurnitureCounter);
+  const clearMeasurementCounter = useStore((state) => state.clearMeasurementCounter);
+  const endARCounter = useStore((state) => state.endARCounter);
+  const isPreviewing = useStore((state) => state.isPreviewing);
+  const selectFurniture = useStore((state) => state.selectFurniture);
+
+  // --- Refs & State ---
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [sessionActive, setSessionActive] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const isPreviewingRef = useRef(false);
 
-  const rendererRef = useRef<any>(null);
+  const rendererRef = useRef<WebGLRenderer | null>(null);
   const sceneRef = useRef<Scene | null>(null);
-  const hitTestSourceRef = useRef<any>(null);
-  const xrRefSpaceRef = useRef<any>(null);
+  const hitTestSourceRef = useRef<XRHitTestSource | null>(null);
+  const xrRefSpaceRef = useRef<XRReferenceSpace | null>(null);
 
-  const measurement = useMeasurement(sceneRef, sessionActive);
-  const furniture = useFurniturePlacement(sceneRef, sessionActive);
-  const { didDragRef } = useObjectRotation(furniture.previewBoxRef, furniture.isPreviewing);
+  // --- Custom Hooks ---
+  const measurement = useMeasurement(sceneRef);
+  // 훅에 필요한 상태와 액션을 인자로 전달합니다.
+  const furniture = useFurniturePlacement(sceneRef, selectFurniture, isARActive);
+  // isPreviewing 상태를 store에서 직접 가져와 사용합니다.
+  const { didDragRef } = useObjectRotation(furniture.previewBoxRef, isPreviewing);
 
+  // isPreviewing 상태가 변경될 때마다 ref를 업데이트합니다.
   useEffect(() => {
-    isPreviewingRef.current = furniture.isPreviewing;
-  }, [furniture.isPreviewing]);
+    isPreviewingRef.current = isPreviewing;
+  }, [isPreviewing]);
 
+  // --- Store Listeners (useEffect) ---
+  // 선택된 가구가 변경되면 미리보기를 생성/제거합니다.
   useEffect(() => {
-    return () => {
-      if (rendererRef.current) {
-        try { rendererRef.current.dispose?.() } catch {}
-        rendererRef.current = null;
-      }
-      measurement.clearPoints();
+    if (selectedFurniture) {
+      furniture.createPreviewBox({
+        width: selectedFurniture.width || 0.5,
+        depth: selectedFurniture.depth || 0.5,
+        height: selectedFurniture.height || 0.5,
+      });
+    } else {
+      furniture.clearPreviewBox();
+    }
+  }, [selectedFurniture, furniture.createPreviewBox, furniture.clearPreviewBox]);
+
+  // 가구 제거 트리거가 변경되면 모든 가구를 삭제합니다.
+  useEffect(() => {
+    if (clearFurnitureCounter > 0) {
       furniture.clearPlacedBoxes();
-    };
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [clearFurnitureCounter]);
 
-  async function startAR() {
+  // 측정 제거 트리거가 변경되면 모든 측정을 삭제합니다.
+  useEffect(() => {
+    if (clearMeasurementCounter > 0) {
+      measurement.clearPoints();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clearMeasurementCounter]);
+
+  const endAR = useCallback(() => {
+    setARActive(false);
+    setIsScanning(false);
+    const session = rendererRef.current?.xr.getSession();
+    if (session) {
+      session.onselect = null;
+      session.end();
+    }
+    if (containerRef.current) containerRef.current.innerHTML = '';
+    measurement.clearPoints();
+    furniture.clearPlacedBoxes();
+  }, [setARActive, measurement, furniture]);
+
+  useEffect(() => {
+    if (endARCounter > 0) {
+      endAR();
+    }
+  }, [endARCounter, endAR]);
+
+  // AR 세션을 시작하는 함수
+  const startAR = useCallback(async () => {
     if (!('xr' in navigator)) {
       alert('WebXR을 지원하지 않는 브라우저입니다.');
       return;
@@ -60,11 +109,10 @@ const ARScene = forwardRef<ARSceneHandles, ARSceneProps>(({ uiOverlayRef, lastUI
     try {
       const session = await (navigator as any).xr.requestSession('immersive-ar', {
         optionalFeatures: ['hit-test', 'local-floor', 'dom-overlay'],
-        domOverlay: { root: uiOverlayRef.current! }
+        domOverlay: { root: uiOverlayRef.current! },
       });
 
-      onSessionStart();
-      setSessionActive(true);
+      setARActive(true);
       setIsScanning(true);
 
       const scene = new Scene();
@@ -78,7 +126,7 @@ const ARScene = forwardRef<ARSceneHandles, ARSceneProps>(({ uiOverlayRef, lastUI
 
       const reticle = new Mesh(
         new RingGeometry(0.06, 0.08, 32),
-        new MeshBasicMaterial({ color: 0x00ff00 })
+        new MeshBasicMaterial({ color: COLORS.RETICLE })
       );
       reticle.rotation.x = -Math.PI / 2;
       reticle.visible = false;
@@ -103,11 +151,7 @@ const ARScene = forwardRef<ARSceneHandles, ARSceneProps>(({ uiOverlayRef, lastUI
       session.onselect = () => {
         const now = Date.now();
         if (now - lastUITouchTimeRef.current < 100) return;
-
-        // 드래그(회전) 동작이었다면 가구 배치를 막습니다.
-        if (didDragRef.current) {
-          return;
-        }
+        if (didDragRef.current) return;
 
         if (isPreviewingRef.current) {
           furniture.placeFurniture();
@@ -120,7 +164,7 @@ const ARScene = forwardRef<ARSceneHandles, ARSceneProps>(({ uiOverlayRef, lastUI
         }
       };
 
-      const onXRFrame = (time: any, frame: any) => {
+      const onXRFrame = (time: number, frame: XRFrame) => {
         if (!frame) return;
         const pose = frame.getViewerPose(xrRefSpaceRef.current);
         if (!pose) return;
@@ -150,36 +194,29 @@ const ARScene = forwardRef<ARSceneHandles, ARSceneProps>(({ uiOverlayRef, lastUI
       console.error('AR 세션 시작 중 오류 발생:', err);
       alert('AR 세션을 시작하지 못했습니다: ' + (err as Error).message);
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setARActive, uiOverlayRef, lastUITouchTimeRef]);
 
-  function endAR() {
-    onSessionEnd();
-    setSessionActive(false);
-    setIsScanning(false);
-    const session = rendererRef.current?.xr.getSession();
-    if (session) {
-      session.onselect = null;
-      session.end();
-    }
-    if (containerRef.current) containerRef.current.innerHTML = '';
-    measurement.clearPoints();
-    furniture.clearPlacedBoxes();
-  }
-
-  useImperativeHandle(ref, () => ({
-    startAR,
-    endAR,
-    measurement,
-    furniture,
-  }));
+  // 컴포넌트 언마운트 시 정리
+  useEffect(() => {
+    return () => {
+      if (rendererRef.current) {
+        try { rendererRef.current.dispose?.() } catch {}
+        rendererRef.current = null;
+      }
+      measurement.clearPoints();
+      furniture.clearPlacedBoxes();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
       <div 
         ref={containerRef} 
-        className={`${styles.arContainer} ${sessionActive ? styles.arContainerActive : styles.arContainerInactive}`}
+        className={`${styles.arContainer} ${isARActive ? styles.arContainerActive : styles.arContainerInactive}`}
       />
-      {!sessionActive ? (
+      {!isARActive ? (
         <div className={styles.centerContainer}>
           <button onClick={startAR} className={styles.startButton}>AR 시작</button>
         </div>
@@ -192,7 +229,6 @@ const ARScene = forwardRef<ARSceneHandles, ARSceneProps>(({ uiOverlayRef, lastUI
       )}
     </>
   );
-});
+};
 
-ARScene.displayName = 'ARScene';
 export default ARScene;

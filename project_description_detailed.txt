@@ -1,0 +1,202 @@
+# AR 측정 및 가구 배치 웹 애플리케이션 상세 기술 설명서
+
+이 문서는 **AR-Measure-Next** 프로젝트의 아키텍처, 핵심 컴포넌트의 내부 동작, 데이터 흐름, 그리고 기능별 상세 로직을 기술하여, 프로젝트에 새로 참여하는 개발자가 코드 레벨까지 깊이 있게 이해하는 것을 목표로 합니다.
+
+---
+
+## 1. 시스템 아키텍처 및 실행 흐름
+
+본 프로젝트는 **Next.js** 프레임워크 위에서 동작하는 **클라이언트 사이드 렌더링(CSR)** 중심의 애플리케이션입니다. 사용자가 페이지에 처음 접속하면, Next.js 서버는 초기 HTML, CSS, JavaScript를 클라이언트에 전송합니다. 이후 모든 AR 관련 로직과 렌더링은 전적으로 사용자의 디바이스(브라우저)에서 처리됩니다.
+
+### 전체 실행 순서:
+1.  **초기 진입**: 사용자가 웹사이트에 접속하면 `pages/index.tsx`가 렌더링됩니다. 이 페이지는 전체 UI의 골격을 잡고, AR 경험의 핵심인 `components/ARScene.tsx`를 자식으로 포함합니다.
+2.  **AR 세션 요청**: `ARScene` 내부에 포함된 "Enter AR" 버튼을 사용자가 클릭합니다.
+3.  **WebXR 세션 시작**: 브라우저는 사용자에게 카메라 접근 권한 등을 요청하고, **WebXR API**를 통해 AR 세션을 시작합니다. 이 순간부터 `react-three/fiber`의 `<Canvas>`가 렌더링하는 3D 공간이 실제 카메라 영상 위에 중첩(Overlay)됩니다.
+4.  **실시간 렌더링 루프**: AR 세션이 활성화되면, `ARScene`은 매 프레임마다 다음을 수행합니다.
+    -   카메라 위치 및 방향 업데이트.
+    -   현실 공간의 평면(바닥, 벽) 정보 업데이트 (Hit Test).
+    -   사용자 입력(터치, 드래그) 감지 및 처리.
+    -   각종 `use...` 훅(Hook)으로부터 받은 상태 값을 기반으로 3D 객체(측정선, 가구 모델 등)를 렌더링.
+5.  **상호작용 및 상태 변경**: 사용자가 화면을 터치하거나 UI 패널과 상호작용하면, 이벤트가 각 기능에 맞는 훅(`useMeasurement`, `useFurniturePlacement` 등)으로 전달됩니다. 훅은 내부 로직에 따라 상태(State)를 변경하고, 변경된 상태는 `ARScene`에 반영되어 화면이 업데이트됩니다.
+
+---
+
+## 2. 프로젝트 구조의 기초와 상호작용
+
+Next.js 프로젝트는 정해진 폴더 구조를 통해 개발 효율성과 코드의 명확성을 높입니다. 각 폴더는 명확한 역할을 가지며, 서로 유기적으로 상호작용합니다.
+
+### #### `pages`
+-   **역할**: **웹 페이지 그 자체**입니다. Next.js의 가장 핵심적인 기능으로, 이 폴더 안의 파일은 웹사이트의 주소(URL)가 됩니다. 예를 들어, `pages/index.tsx`는 우리 웹사이트의 메인 페이지(`/`)가 되고, `pages/about.tsx`를 만들면 `/about` 페이지가 자동으로 생성됩니다. 사용자가 브라우저에서 보는 화면의 시작점입니다.
+-   **상호작용**: 페이지를 구성하기 위해 `components` 폴더의 UI 조각들을 가져와 조립합니다. 또한, 페이지에 필요한 동적인 기능(예: 데이터 불러오기, 상태 관리)을 위해 `hooks` 폴더의 훅을 호출하고, `fetch`를 통해 `pages/api`의 API를 호출하여 데이터를 받아옵니다.
+
+### #### `components`
+-   **역할**: **재사용 가능한 UI 부품(컴포넌트)**을 모아두는 곳입니다. 버튼, 메뉴, 입력창처럼 작은 부품부터 `ARScene.tsx`처럼 특정 기능을 담당하는 거대한 부품까지 모두 컴포넌트가 될 수 있습니다. 코드를 여러 번 작성할 필요 없이, 필요할 때마다 가져다 쓸 수 있어 유지보수가 쉬워집니다.
+-   **상호작용**: 주로 `pages` 폴더에서 이 부품들을 가져가 페이지를 완성합니다. 때로는 큰 컴포넌트가 더 작은 컴포넌트들을 조립하여 만들어지기도 합니다. (예: `UIPanel` 컴포넌트가 `Button` 컴포넌트와 `Dropdown` 컴포넌트를 포함)
+
+### #### `hooks`
+-   **역할**: **기능 로직의 재사용**을 담당합니다. React(Next.js)에서 UI의 특정 상태(State)와 그 상태를 다루는 로직이 복잡해질 때, 이를 별도의 함수(훅)로 분리하여 관리합니다. 예를 들어, `useMeasurement` 훅은 '측정'과 관련된 모든 상태(측정점, 거리)와 로직(점 추가, 거리 계산, 초기화)을 가지고 있습니다. 이렇게 하면 `ARScene` 컴포넌트는 측정 기능이 '어떻게' 동작하는지 몰라도, `useMeasurement`가 주는 결과물만 가져다 쓰면 되므로 코드가 매우 깔끔해집니다.
+-   **상호작용**: `pages`나 `components`에서 호출됩니다. 훅은 자신의 상태와 그 상태를 변경할 수 있는 함수들을 배열이나 객체 형태로 반환하고, 컴포넌트는 이를 사용하여 사용자와 상호작용하고 화면을 업데이트합니다.
+
+### #### `lib`
+-   **역할**: **공용 라이브러리(Library)** 폴더입니다. 특정 컴포넌트나 페이지에 종속되지 않는, 프로젝트 전반에서 사용될 수 있는 코드들을 보관합니다. 데이터베이스 연결 설정(`db.ts`), 프로젝트에서 공통으로 사용하는 타입 정의(`types.ts`), 날짜 포맷 변경이나 복잡한 계산 같은 순수 유틸리티 함수(`utils.ts`) 등이 여기에 해당합니다.
+-   **상호작용**: 가장 독립적인 폴더로, `pages`, `components`, `hooks`, `api` 등 프로젝트 내의 거의 모든 파일이 필요에 따라 `lib` 폴더의 코드를 `import`하여 사용할 수 있습니다.
+
+### #### `pages/api`
+-   **역할**: **백엔드(서버)의 역할**을 하는 API 엔드포인트를 정의하는 곳입니다. 이 폴더의 파일들은 화면(UI)을 만들지 않고, 대신 데이터(주로 JSON 형식)를 제공하는 창구 역할을 합니다. 프론트엔드(사용자 화면)가 데이터베이스의 정보를 직접 요청하는 것은 보안상 위험하므로, 이 API가 중간 다리 역할을 해줍니다.
+-   **상호작용**: 프론트엔드(`pages`나 `hooks`)에서 `fetch('/api/furniture')`와 같이 HTTP 요청을 보내면, 해당 API 파일이 실행됩니다. 이 API는 `lib/db.ts`를 사용하여 데이터베이스에 접근하고, 가져온 데이터를 프론트엔드에 응답(response)으로 보내줍니다.
+
+---
+
+## 3. 주요 프레임워크 및 라이브러리 설명
+
+이 프로젝트는 여러 기술들이 조합되어 동작합니다. 각 기술의 역할을 이해하면 전체 구조를 파악하는 데 큰 도움이 됩니다.
+
+### #### `React`
+-   **역할**: **사용자 인터페이스(UI)를 만들기 위한 근본적인 라이브러리**입니다. "컴포넌트"라는 독립적인 UI 부품을 조립하여 복잡한 화면을 만듭니다. 이 프로젝트의 모든 화면 요소는 React 컴포넌트를 기반으로 합니다.
+-   **핵심 개념**: `state`(컴포넌트가 가지는 내부 데이터), `props`(부모에게서 받는 데이터), `useEffect`(특정 상황에 코드를 실행하는 기능) 같은 "훅(Hook)"을 통해 동적인 UI를 구현합니다.
+
+### #### `Next.js`
+-   **역할**: **React를 기반으로 웹 애플리케이션을 더 쉽고 강력하게 만들 수 있도록 도와주는 프레임워크**입니다. React가 UI 부품을 만드는 데 집중한다면, Next.js는 그 부품들을 조립하여 실제 웹사이트로 완성하는 데 필요한 모든 도구(라우팅, API, 최적화 등)를 제공합니다.
+-   **주요 기능**:
+    -   **파일 기반 라우팅**: `pages` 폴더에 파일을 만드는 것만으로 페이지(URL)가 자동 생성됩니다.
+    -   **API 라우트**: `pages/api` 폴더를 통해 별도의 서버 없이도 백엔드 API를 만들 수 있습니다.
+    -   **개발 환경**: 코드 변경 시 화면이 자동으로 새로고침되는 등 편리한 개발 환경을 제공합니다.
+
+### #### `WebXR Device API`
+-   **역할**: **AR/VR 장치와 상호작용할 수 있는 웹 표준 기술(API)**입니다. 별도로 설치하는 라이브러리가 아니라, 최신 웹 브라우저(Chrome, Safari 등)에 내장된 기능입니다. 이 API를 통해 개발자는 사용자의 카메라에 접근하고, 기기의 위치와 방향을 추적하며, 현실 공간 위에 3D 콘텐츠를 겹쳐 그릴 수 있습니다.
+-   **비유**: 자동차의 "표준 시가잭 소켓"과 같습니다. 어떤 회사의 충전기나 GPS 장치든 이 표준 소켓에 꽂아 사용할 수 있는 것처럼, WebXR은 다양한 AR/VR 기기와 웹 콘텐츠를 연결하는 표준화된 통로 역할을 합니다.
+-   **상호작용**: `three.js`나 `@react-three/xr` 같은 라이브러리들은 이 복잡한 WebXR API를 더 쉽게 사용할 수 있도록 감싸주는 역할을 합니다. 우리는 WebXR API를 직접 다루기보다, 이 라이브러리들이 제공하는 편리한 기능들을 통해 AR을 구현합니다.
+
+### #### `three.js`와 그 생태계
+
+3D 그래픽을 구현하는 부분은 여러 라이브러리가 협력하여 만들어집니다. 자동차에 비유하여 설명할 수 있습니다.
+
+-   **`three.js`**: **자동차의 "엔진"**
+    -   **역할**: 웹 브라우저에서 3D 그래픽을 그릴 수 있게 해주는 가장 근본적이고 핵심적인 라이브러리입니다. `Scene`(공간), `Camera`(시점), `Mesh`(물체), `Material`(재질), `Light`(조명) 등 3D를 구성하는 모든 기본 요소를 제공합니다. WebGL이라는 복잡한 기술을 쉽게 사용할 수 있도록 도와줍니다.
+    -   **특징**: 매우 강력하지만, 코드가 다소 길고 명령적입니다. (예: `scene.add(mesh); renderer.render(scene, camera);` 처럼 하나하나 직접 명령해야 함)
+
+-   **`@react-three/fiber`**: **자동차의 "운전 시스템 및 대시보드"**
+    -   **역할**: `three.js`를 React 방식으로, 즉 "컴포넌트"처럼 선언적으로 사용할 수 있게 해주는 "렌더러"입니다. `three.js`의 명령적인 코드를 React의 컴포넌트 태그로 바꿔줍니다.
+    -   **`three.js`와의 차이점 (핵심)**:
+        -   **`three.js` 방식**: `const mesh = new THREE.Mesh(); scene.add(mesh);`
+        -   **`fiber` 방식**: `<mesh />`
+    -   **장점**: `three.js`의 모든 기능을 그대로 사용하면서, React의 `state`, `props`, `useEffect`와 같은 강력한 기능들과 자연스럽게 연동할 수 있습니다. 코드가 훨씬 직관적이고 간결해지며, React 개발자에게 매우 친숙합니다.
+
+-   **`@react-three/drei`**: **자동차의 "편의 기능 풀옵션 패키지"**
+    -   **역할**: `@react-three/fiber`를 사용할 때 자주 필요한 기능들을 미리 만들어 놓은 도구 모음집입니다. `drei`가 없어도 모든 것을 만들 수 있지만, 반복적인 작업을 줄여주고 개발 속도를 비약적으로 향상시킵니다.
+    -   **예시**: 마우스로 화면을 돌려보는 `<OrbitControls>`, 3D 모델을 쉽게 불러오는 `useGLTF`, 3D 텍스트를 쉽게 만드는 `<Text>` 등이 모두 `drei`에 포함되어 있습니다.
+
+-   **`@react-three/xr`**: **자동차의 "AR/VR 모드 전환 장치"**
+    -   **역할**: `@react-three/fiber`로 만든 3D 공간을 증강현실(AR)이나 가상현실(VR)로 확장시켜주는 라이브러리입니다. 내부적으로는 브라우저의 `WebXR Device API`를 사용하여 동작합니다.
+    -   **주요 기능**: `<ARButton>`(AR 시작 버튼), `<XR>`(AR 세션 관리), `useHitTest`(바닥 감지 훅) 등 AR/VR 상호작용에 필요한 기능들을 컴포넌트와 훅 형태로 제공합니다.
+
+**결론: `WebXR`은 브라우저의 표준 AR 기능이고, `three.js`는 3D 엔진이며, `fiber`는 그 엔진을 React답게 운전할 수 있게 해주는 시스템이고, `drei`와 `xr`은 더 편하고 강력한 기능을 제공하는 추가 장치들입니다.**
+
+### #### `mysql2/promise`
+-   **역할**: **데이터베이스(MySQL)와의 통신을 담당하는 드라이버**입니다. `pages/api`와 같은 서버 환경에서 DB에 연결하고, SQL 쿼리를 보내고, 그 결과를 받아오는 역할을 합니다. `/promise`가 붙은 버전은 최신 JavaScript의 `async/await` 문법을 지원하여 비동기 코드를 더 깔끔하게 작성할 수 있게 해줍니다.
+
+---
+
+## 4. 핵심 파일 및 모듈 상세 분석
+
+### #### `components/ARScene.tsx`
+AR 경험의 심장부입니다. `react-three/fiber`와 `react-three/xr`을 사용하여 선언적으로 3D 및 AR 환경을 구성합니다.
+
+-   **구조 (예상 코드)**:
+    ```tsx
+    // ARScene.tsx
+    import { Canvas } from '@react-three/fiber';
+    import { ARButton, XR, Controllers, Hands } from '@react-three/xr';
+    // ... custom hooks
+    
+    export function ARScene() {
+      const { measurementPoints, addPoint } = useMeasurement();
+      const { placedFurniture, previewFurniture, placeSelectedFurniture } = useFurniturePlacement();
+    
+      const handleSelect = (event) => {
+        // event.intersection.point 와 같은 hit-test 결과 사용
+        // 현재 활성화된 모드(측정/배치)에 따라 각 훅의 함수 호출
+        // ex: if (mode === 'measure') addPoint(event.intersection.point);
+      };
+    
+      return (
+        <>
+          <ARButton />
+          <Canvas>
+            <XR onSelect={handleSelect}>
+              {/* 조명 */}
+              <ambientLight />
+              <directionalLight position={[10, 10, 5]} />
+    
+              {/* AR 컨트롤러 및 손 모델링 (필요시) */}
+              <Controllers />
+              <Hands />
+    
+              {/* 측정 결과 렌더링 */}
+              {measurementPoints.map(p => <mesh position={p} />)}
+              {/* ... measurement line rendering ... */}
+    
+              {/* 가구 렌더링 */}
+              {previewFurniture && <primitive object={previewFurniture.model} />}
+              {placedFurniture.map(f => <primitive object={f.model} />)}
+    
+            </XR>
+          </Canvas>
+        </>
+      );
+    }
+    ```
+-   **역할**:
+    -   **상태 집계**: 모든 커스텀 훅을 호출하고, 그로부터 반환된 상태(측정점, 가구 목록 등)와 함수(이벤트 핸들러)를 가져와 통합 관리합니다.
+    -   **이벤트 위임**: `@react-three/xr`의 `onSelect`와 같은 이벤트를 감지하여, 현재 애플리케이션의 상태(예: "측정 모드")에 따라 적절한 훅의 함수(예: `useMeasurement`의 `addPoint`)를 호출하는 라우팅 역할을 수행합니다.
+    -   **렌더링**: 훅에서 받은 데이터를 기반으로 실제 `three.js` 객체들(`<mesh>`, `<line>`, `<primitive>`)을 장면에 렌더링합니다.
+
+### #### `hooks` 폴더: 기능별 로직 분리
+각 훅은 특정 기능에 대한 상태(State)와 그 상태를 변경하는 함수(Updater)를 캡슐화하여 `ARScene.tsx`의 복잡도를 낮춥니다.
+
+-   **`useMeasurement.ts`**:
+    -   **내부 상태**: `const [points, setPoints] = useState<THREE.Vector3[]>([]);`
+    -   **로직**:
+        1.  `addPoint(point: THREE.Vector3)`: 외부(`ARScene`)에서 호출되면 `points` 배열에 새로운 3D 좌표를 추가합니다.
+        2.  `useEffect`: `points` 배열이 변경될 때마다, 배열에 점이 2개 이상 있으면 마지막 두 점 사이의 거리를 `.distanceTo()`로 계산하여 별도의 상태(`distance`)에 저장합니다.
+        3.  `clear()`: `points`와 `distance` 상태를 초기화합니다.
+    -   **반환값**: `{ points, distance, addPoint, clear }` 와 같은 객체를 반환하여 컴포넌트에서 사용하게 합니다.
+
+-   **`useFurniturePlacement.ts`**:
+    -   **내부 상태**:
+        -   `const [furnitureList, setFurnitureList] = useState([]);`
+        -   `const [selected, setSelected] = useState(null);`
+        -   `const [placedItems, setPlacedItems] = useState([]);`
+        -   `const [previewModel, setPreviewModel] = useState(null);`
+    -   **로직**:
+        1.  **데이터 로딩**: `useEffect`를 사용하여 컴포넌트 마운트 시 `pages/api/furniture.ts`에 요청을 보내 가구 목록(`furnitureList`)을 가져옵니다.
+        2.  **가구 선택**: `selectFurniture(id)` 함수가 호출되면, `furnitureList`에서 해당 가구 정보를 찾고, `three.js`의 `GLTFLoader`를 비동기적으로 호출하여 3D 모델을 로드합니다. 로드된 모델은 `previewModel` 상태에 저장됩니다.
+        3.  **미리보기**: `ARScene`의 렌더링 루프에서 AR 컨트롤러나 화면 중앙의 Hit Test 결과를 받아 `previewModel`의 위치와 방향을 매 프레임 업데이트합니다.
+        4.  **배치**: `placeItem()` 함수가 호출되면, 현재 `previewModel`의 위치/회전 값 복사본을 `placedItems` 배열에 추가합니다.
+    -   **반환값**: `{ furnitureList, placedItems, previewModel, selectFurniture, placeItem }`
+
+-   **`useObjectRotation.ts`**:
+    -   **로직**: 이 훅은 주로 사용자 제스처(드래그)를 처리하는 데 집중합니다. `@use-gesture/react`와 같은 라이브러리를 활용할 가능성이 높습니다.
+    -   `bind = useDrag(({ down, movement: [mx], ... }) => ...)`
+    -   `useDrag` 훅을 사용하여 드래그 시작/진행/종료 상태를 감지합니다.
+    -   수평 이동량(`mx`)에 비례하여 `previewModel`의 y축 회전(`rotation.y`) 값을 변경합니다. 이 로직은 `useFurniturePlacement` 훅 내부에서 함께 처리될 수도 있습니다.
+
+-   **`usePanelInteraction.ts`**:
+    -   **대상**: 3D 공간이 아닌, 화면 위에 떠 있는 HTML `<div>` UI 패널을 제어합니다.
+    -   **로직**: `useObjectRotation`과 유사하게 `@use-gesture/react`의 `useDrag`와 `usePinch`를 사용합니다.
+        -   `useDrag`: 패널의 `transform: translate(x, y)` CSS 속성을 변경하여 위치를 이동시킵니다.
+        -   `usePinch`: 패널의 `transform: scale(s)` CSS 속성을 변경하여 크기를 조절합니다.
+
+### #### `lib` 및 `pages/api` 폴더: 데이터 관리
+
+-   **`pages/api/furniture.ts`**:
+    -   Next.js의 API Route 기능입니다. 서버 환경(Node.js)에서 실행됩니다.
+    -   `handler(req, res)` 함수 내에서 `GET` 요청을 받으면, `lib/db.ts`에서 정의된 가구 데이터를 가져와 `res.status(200).json(data)` 형태로 응답합니다.
+    -   **중요**: 파일 이름이 `furniture.ts`인 것은 초기 개발 단계의 잔재일 수 있으며, 실제로는 가구 데이터를 다루므로 `furniture.ts`로 변경하는 것이 바람직합니다.
+
+-   **`lib/db.ts`**:
+    -   실제 데이터베이스 연결 로직 또는 임시 목(mock) 데이터를 정의합니다.
+    -   **프로토타입 단계**: `export const furnitureData = [{ id: 1, name: 'Sofa', model: '/models/sofa.glb' }, ...];` 와 같이 하드코딩된 배열을 export 할 가능성이 높습니다.
+    -   **프로덕션 단계**: Prisma, TypeORM 등의 ORM 클라이언트나 `pg`, `mysql2` 같은 DB 드라이버를 초기화하고, 데이터베이스 쿼리 함수를 정의하는 코드가 위치하게 됩니다.
+
+---

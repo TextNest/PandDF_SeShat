@@ -1,31 +1,40 @@
+// /pages/index.tsx
+// 이 파일은 애플리케이션의 메인 페이지(진입점)입니다.
+// AR 씬과 모든 UI 요소를 렌더링하고 관리합니다.
+
 import { useEffect, useRef, useState } from 'react';
 import { usePanelInteraction } from '../hooks/usePanelInteraction';
 import { FurnitureItem } from '../lib/types';
-import ARScene, { ARSceneHandles } from '../components/ARScene';
+import ARScene from '../components/ARScene';
 import styles from './Home.module.css';
+import { useStore } from '../store/store';
+import { shallow } from 'zustand/shallow';
 
 export default function Home() {
+  // --- Zustand Store ---
+  const isARActive = useStore((state) => state.isARActive);
+  const selectedFurniture = useStore((state) => state.selectedFurniture);
+  const selectFurniture = useStore((state) => state.selectFurniture);
+  const triggerClearFurniture = useStore((state) => state.triggerClearFurniture);
+  const triggerClearMeasurement = useStore((state) => state.triggerClearMeasurement);
+  const triggerEndAR = useStore((state) => state.triggerEndAR);
+
   // --- 참조(Refs) ---
   const uiOverlayRef = useRef<HTMLDivElement | null>(null);
-  const arSceneRef = useRef<ARSceneHandles | null>(null);
   const lastUITouchTimeRef = useRef(0);
 
-  // --- UI 훅 & 상태 ---
+  // --- UI 훅 & 로컬 상태 ---
   const { panelRef, panelStyle, handleInteractionStart } = usePanelInteraction(lastUITouchTimeRef);
   const [dbItems, setDbItems] = useState<FurnitureItem[]>([]);
-  const [selectedItem, setSelectedItem] = useState<FurnitureItem | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
-  const [isARActive, setARActive] = useState(false);
-  
+
   // --- 데이터 가져오기 ---
   useEffect(() => {
     async function fetchDbItems() {
       try {
-        const response = await fetch('/api/users');
-        if (!response.ok) {
-          throw new Error(`HTTP 오류! 상태: ${response.status}`);
-        }
+        const response = await fetch('/api/furniture');
+        if (!response.ok) throw new Error(`HTTP 오류! 상태: ${response.status}`);
         const data = await response.json();
         if (Array.isArray(data)) {
           setDbItems(data);
@@ -42,50 +51,34 @@ export default function Home() {
 
   // --- 이벤트 핸들러 ---
   const handleSelectItem = (itemId: string) => {
-    const item = dbItems.find(i => i.id.toString() === itemId);
-    setSelectedItem(item || null);
+    const item = dbItems.find((i) => i.id.toString() === itemId);
+    selectFurniture(item || null);
     setIsDropdownOpen(false);
-
-    if (item) {
-      arSceneRef.current?.furniture.createPreviewBox({
-        width: item.width || 0.5,
-        depth: item.depth || 0.5,
-        height: item.height || 0.5,
-      });
-    } else {
-      arSceneRef.current?.furniture.clearPreviewBox();
-    }
   };
 
   const handleClearFurniture = () => {
-    arSceneRef.current?.furniture.clearPlacedBoxes();
+    triggerClearFurniture();
   };
 
   const handleClearMeasurement = () => {
-    arSceneRef.current?.measurement.clearPoints();
+    triggerClearMeasurement();
   };
 
   const handleEndAR = () => {
-    arSceneRef.current?.endAR();
+    triggerEndAR();
   };
 
   return (
     <div className={styles.container}>
-      <ARScene 
-        ref={arSceneRef} 
-        uiOverlayRef={uiOverlayRef} 
-        lastUITouchTimeRef={lastUITouchTimeRef}
-        onSessionStart={() => setARActive(true)}
-        onSessionEnd={() => setARActive(false)}
-      />
-      
+      <ARScene uiOverlayRef={uiOverlayRef} lastUITouchTimeRef={lastUITouchTimeRef} />
+
       <div ref={uiOverlayRef} className={styles.uiOverlay}>
         {isARActive && (
           <div
             ref={panelRef}
-            onMouseDown={handleInteractionStart as any}
-            onTouchStart={handleInteractionStart as any}
-            style={panelStyle} // panelStyle은 동적이므로 style 속성으로 유지
+            onMouseDown={handleInteractionStart}
+            onTouchStart={handleInteractionStart}
+            style={panelStyle}
             className={styles.panel}
           >
             <div className={`${styles.panelHeader} ${isPanelCollapsed ? styles.panelHeaderCollapsed : ''}`}>
@@ -100,26 +93,21 @@ export default function Home() {
                 <div className={styles.section}>
                   <h3 className={styles.subSectionTitle}>DB 아이템 선택 ({dbItems.length}개)</h3>
                   <div className={styles.dropdownContainer}>
-                    <button
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className={styles.dropdownButton}
-                    >
-                      {selectedItem ? `${selectedItem.name} (W:${selectedItem.width}, D:${selectedItem.depth}, H:${selectedItem.height})` : '-- 아이템 선택 --'}
+                    <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className={styles.dropdownButton}>
+                      {selectedFurniture
+                        ? `${selectedFurniture.name} (W:${selectedFurniture.width}, D:${selectedFurniture.depth}, H:${selectedFurniture.height})`
+                        : '-- 아이템 선택 --'}
                     </button>
                     {isDropdownOpen && (
                       <div className={styles.dropdownMenu}>
-                        <button
-                          onClick={() => handleSelectItem('')}
-                          className={styles.dropdownItem}
-                        >
+                        <button onClick={() => handleSelectItem('')} className={styles.dropdownItem}>
                           -- 아이템 선택 --
                         </button>
                         {dbItems.map((item) => (
                           <button
                             key={item.id}
                             onClick={() => handleSelectItem(item.id.toString())}
-                            className={`${styles.dropdownItem} ${selectedItem?.id === item.id ? styles.dropdownItemSelected : ''}`}
-                          >
+                            className={`${styles.dropdownItem} ${selectedFurniture?.id === item.id ? styles.dropdownItemSelected : ''}`}>
                             {item.name} (W:{item.width}, D:{item.depth}, H:{item.height})
                           </button>
                         ))}
@@ -129,10 +117,16 @@ export default function Home() {
                 </div>
 
                 <div className={styles.buttonGrid}>
-                  <button onClick={handleClearFurniture} className={`${styles.button} ${styles.buttonSecondary}`}>가구 삭제</button>
-                  <button onClick={handleClearMeasurement} className={`${styles.button} ${styles.buttonSecondary}`}>측정 삭제</button>
+                  <button onClick={handleClearFurniture} className={`${styles.button} ${styles.buttonSecondary}`}>
+                    가구 삭제
+                  </button>
+                  <button onClick={handleClearMeasurement} className={`${styles.button} ${styles.buttonSecondary}`}>
+                    측정 삭제
+                  </button>
                 </div>
-                <button onClick={handleEndAR} className={`${styles.button} ${styles.buttonDanger}`}>AR 종료</button>
+                <button onClick={handleEndAR} className={`${styles.button} ${styles.buttonDanger}`}>
+                  AR 종료
+                </button>
               </>
             )}
           </div>
