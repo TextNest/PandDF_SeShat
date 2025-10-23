@@ -29,7 +29,7 @@ export default function SuperAdminSidebar() {
     },
     { 
       icon: Users, 
-      label: '사용자 관리', 
+      label: '관리자 관리', 
       href: '/superadmin/users' 
     },
     { 

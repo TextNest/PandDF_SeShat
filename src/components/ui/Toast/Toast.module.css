@@ -1,84 +1,106 @@
-/* // ============================================
-// 📄 10. src/components/ui/Toast/Toast.module.css
-// ============================================ */
+.toastContainer {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+}
 
 .toast {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  background-color: white;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 300px;
-  max-width: 500px;
-  animation: slideIn 0.3s ease-out;
-  border-left: 4px solid;
+  max-width: 400px;
+  pointer-events: auto;
+  animation: slideIn 0.3s ease;
+  border-left: 4px solid currentColor;
 }
 
 @keyframes slideIn {
   from {
-    transform: translateX(100%);
     opacity: 0;
+    transform: translateX(100%);
   }
   to {
-    transform: translateX(0);
     opacity: 1;
+    transform: translateX(0);
   }
 }
 
-.icon {
+.toastIcon {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.message {
-  flex: 1;
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-}
-
-.closeButton {
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  background: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-radius: var(--border-radius-sm);
+}
+
+.toastMessage {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #333;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.closeButton {
   flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 .closeButton:hover {
-  background-color: var(--bg-secondary);
+  background: rgba(0, 0, 0, 0.05);
+  color: #666;
 }
 
-/* 타입별 색상 */
-.success {
-  border-left-color: var(--color-success);
+/* 타입별 스타일 */
+.toast.success {
+  color: #10b981;
+  background: #ecfdf5;
 }
 
-.success .icon {
-  color: var(--color-success);
+.toast.error {
+  color: #ef4444;
+  background: #fef2f2;
 }
 
-.error {
-  border-left-color: var(--color-error);
+.toast.warning {
+  color: #f59e0b;
+  background: #fffbeb;
 }
 
-.error .icon {
-  color: var(--color-error);
+.toast.info {
+  color: #3b82f6;
+  background: #eff6ff;
 }
 
-.info {
-  border-left-color: var(--color-info);
-}
+/* 반응형 */
+@media (max-width: 640px) {
+  .toastContainer {
+    top: auto;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+  }
 
-.info .icon {
-  color: var(--color-info);
+  .toast {
+    min-width: auto;
+    max-width: 100%;
+  }
 }

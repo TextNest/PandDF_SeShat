@@ -133,10 +133,10 @@ export default function UsersPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1>사용자 관리</h1>
-          <p>시스템의 모든 사용자를 관리합니다</p>
+          <h1>관리자 관리</h1>
+          <p>시스템의 모든 관리자 계정을 관리합니다</p>
         </div>
-        <button className={styles.addButton}>+ 새 사용자 추가</button>
+        <button className={styles.addButton}>+ 새 관리자 추가</button>
       </div>
 
       {/* 통계 카드 */}
