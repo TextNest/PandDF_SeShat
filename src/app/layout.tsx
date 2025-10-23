@@ -1,17 +1,13 @@
-// ============================================
-// 📄 1. src/app/layout.tsx
-// ============================================
-// 루트 레이아웃 - 모든 페이지에 적용되는 최상위 레이아웃
-// ============================================
-
 import type { Metadata } from 'next';
-import '@/styles/globals.css';
-import '@/styles/typography.css';
-import '@/styles/utilities.css';
+import { Inter } from 'next/font/google';
+import ToastContainer from '@/components/ui/Toast/Toast';
+import './globals.css';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SeShat - AI 제품 설명서 어시스턴트',
-  description: 'LLM 기반 전자제품 설명서 질의응답 시스템',
+  title: 'SeShat',
+  description: 'AI 기반 제품 설명서 질의응답 시스템',
 };
 
 export default function RootLayout({
@@ -21,7 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <ToastContainer />
+      </body>
     </html>
   );
 }

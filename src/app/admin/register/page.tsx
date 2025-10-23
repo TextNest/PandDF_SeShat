@@ -6,37 +6,39 @@ import Input from '@/components/ui/Input/Input';
 import Button from '@/components/ui/Button/Button';
 import { Lock, Mail, User, Key, Building2 } from 'lucide-react';
 import styles from './register-page.module.css';
+import { toast } from '@/store/useToastStore';
+
 
 // Mock 기업 데이터
 const mockCompanies = [
-  { 
-    id: 'company-001', 
-    name: '삼성전자', 
+  {
+    id: 'company-001',
+    name: '삼성전자',
     code: 'SAMSUNG24',
     // 실제로는 API에서 기존 사용자들의 부서 목록을 가져옴
     existingDepartments: ['무선사업부', 'DS부문', 'SDC', '경영지원팀', 'Global마케팅']
   },
-  { 
-    id: 'company-002', 
-    name: 'LG전자', 
+  {
+    id: 'company-002',
+    name: 'LG전자',
     code: 'LG2024XY',
     existingDepartments: ['H&A사업본부', 'BS사업본부', 'VS사업본부', '경영관리']
   },
-  { 
-    id: 'company-003', 
-    name: '현대자동차', 
+  {
+    id: 'company-003',
+    name: '현대자동차',
     code: 'HYUNDAI8',
     existingDepartments: ['상품개발본부', '생산본부', '영업본부', '디자인센터']
   },
-  { 
-    id: 'company-004', 
-    name: 'SK하이닉스', 
+  {
+    id: 'company-004',
+    name: 'SK하이닉스',
     code: 'SKHYNIX9',
     existingDepartments: ['DRAM개발', 'NAND개발', '생산기술', 'Quality']
   },
-  { 
-    id: 'company-005', 
-    name: '네이버', 
+  {
+    id: 'company-005',
+    name: '네이버',
     code: 'NAVER123',
     existingDepartments: ['Search', 'AI Lab', 'Clova', 'Webtoon', 'Cloud']
   },
@@ -50,8 +52,8 @@ export default function RegisterPage() {
 
   // Step 1: 가입 코드
   const [registrationCode, setRegistrationCode] = useState('');
-  const [verifiedCompany, setVerifiedCompany] = useState<{ 
-    id: string; 
+  const [verifiedCompany, setVerifiedCompany] = useState<{
+    id: string;
     name: string;
     existingDepartments: string[];
   } | null>(null);
@@ -73,12 +75,12 @@ export default function RegisterPage() {
 
     setTimeout(() => {
       const company = mockCompanies.find(c => c.code === registrationCode.toUpperCase());
-      
+
       if (company) {
-        setVerifiedCompany({ 
-          id: company.id, 
+        setVerifiedCompany({
+          id: company.id,
           name: company.name,
-          existingDepartments: company.existingDepartments 
+          existingDepartments: company.existingDepartments
         });
         setStep('info');
         setError(null);
@@ -125,11 +127,16 @@ export default function RegisterPage() {
         languagePreference,
         role: 'company_admin',
       };
-      
+
       console.log('회원가입 데이터:', userData);
-      
-      alert(`${verifiedCompany?.name} 관리자로 가입되었습니다!\n부서: ${finalDepartment}\n로그인 페이지로 이동합니다.`);
-      router.push('/admin/login');
+
+      toast.success(`${verifiedCompany?.name} 관리자로 가입되었습니다!`);
+
+      setTimeout(() => {
+        router.push('/admin/login');
+      }, 1500);
+
+      setIsLoading(false);
     }, 1500);
   };
 
@@ -204,7 +211,7 @@ export default function RegisterPage() {
             </Button>
 
             <div className={styles.footer}>
-              <button 
+              <button
                 type="button"
                 onClick={() => router.push('/admin/login')}
                 className={styles.backButton}
@@ -291,8 +298,8 @@ export default function RegisterPage() {
                   </select>
                 </div>
                 <small className={styles.hint}>
-                  {department === '직접 입력' 
-                    ? '새로운 부서명을 입력하세요' 
+                  {department === '직접 입력'
+                    ? '새로운 부서명을 입력하세요'
                     : '기존 부서를 선택하거나 직접 입력하세요'}
                 </small>
               </div>
@@ -403,7 +410,7 @@ export default function RegisterPage() {
             </div>
 
             <div className={styles.footer}>
-              <button 
+              <button
                 type="button"
                 onClick={() => router.push('/admin/login')}
                 className={styles.backButton}
