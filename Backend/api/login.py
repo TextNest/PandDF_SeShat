@@ -29,7 +29,7 @@ FROM company
 WHERE company_code = :code
 """
 regist_query = """
-INSERT INTO users (user_id ,pw_hash,company_name,department,preferred_language)VALUES (:user_id ,:pw_hash,:company_name,:department,:preferred_language)
+INSERT INTO user (user_id ,pw_hash,name,company_name,department,preferred_language)VALUES (:user_id,:pw_hash,:name,:company_name,:department,:preferred_language)
 """
 @router.post("/register/code")
 async def regist_with_code(code:FindCode,session:AsyncSession=Depends(get_session)):
@@ -48,7 +48,8 @@ async def regist_with_hash_pw(write_info:Register,session:AsyncSession=Depends(g
         "user_id":write_info.user_id,
         "department":write_info.department,
         "preferred_language":write_info.preferred_language,
-        "pw_hash":pw_hash
+        "pw_hash":pw_hash,
+        "name":write_info.name
     }
     try:
         await session.execute(text(regist_query),params=params)
@@ -56,11 +57,12 @@ async def regist_with_hash_pw(write_info:Register,session:AsyncSession=Depends(g
         return {"message":f"{write_info.user_id}가 등록되었습니다."}
     except Exception as e:
         await session.rollback()
+        print(f"사용자 등록 실패했습니다.(오류:{e})")
         raise HTTPException(status_code=400,detail=f"사용자 등록 실패했습니다.(오류:{e})")
 
 login_query = """
-SELECT company_name,pw_hash
-FROM users
+SELECT company_name,pw_hash,name
+FROM user
 WHERE user_id = :user_id
 """
 
@@ -79,6 +81,7 @@ async def login_with_token(login_data:LoginRequest,session:AsyncSession=Depends(
         data ={
             "id":login_data.user_id,    
             "company_name":user_row["company_name"],
+            "name":user_row["name"]
         } # expire 미 작성시 30분  작성법  expires_delta = timedelta(days=1)
     )
     return {
@@ -86,3 +89,10 @@ async def login_with_token(login_data:LoginRequest,session:AsyncSession=Depends(
         "token_type":"Bearer"
     }
 companyInfo = Dict[str,str]
+
+@router.post("/user/me", response_model=companyInfo)
+async def get_user_info_from_token_post(
+    current_user_info: companyInfo = Depends(get_current_user)
+):
+    print("보냈습니다.",current_user_info)
+    return current_user_info

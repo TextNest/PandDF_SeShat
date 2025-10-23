@@ -7,14 +7,13 @@ from langchain.memory import ChatMessageHistory
 from langchain.retrievers.multi_vector import MultiVectorRetriever
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.vectorstores import FAISS
-from core.config import path
+from core.config import path,load
 import os
 
 from langchain_openai import ChatOpenAI,OpenAIEmbeddings
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.callbacks.manager import CallbackManagerForRetrieverRun
 
-from core.config import load
 load.envs()
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 store = {}

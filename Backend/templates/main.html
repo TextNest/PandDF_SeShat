@@ -85,17 +85,18 @@
                 });
 
                 const userInfo = await response.json();
-
+                console.log(userInfo)
                 if (response.ok) {
-                    // 3. 서버가 검증한 유효한 정보로 UI 업데이트
+                    console.log("확인완료")
                     const userId = userInfo.id;
                     const companyName = userInfo.company_name;
+                    const name = userInfo.name;
 
                     messageElement.innerHTML = `
                         <span class="company-name">${companyName}</span> 소속
-                        <span class="user-id">${userId}</span> 님
+                        <span class="user-id">${name}</span> 님
                     `;
-                    greetingElement.innerText = `환영합니다, ${userId}님!`;
+                    greetingElement.innerText = `환영합니다, ${name}님!`;
                     
                     // 로그아웃 버튼 동적 생성
                     const logoutButton = document.createElement('button');
