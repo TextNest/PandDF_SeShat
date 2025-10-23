@@ -11,7 +11,7 @@
 |이미지 OCR : PaddleOCR|작업 취소|이미지 내 좌표 정규화|완료|
 |이미지 처리|완료|pdf 내 페이지 변환|-|
 |이미지 처리|완료|메타데이터(페이지) 규격화|변경 가능성 존재|
-|이미지 처리|진행|페이지 저장|이미지 병합본 처리 후 진행 재개|
+|이미지 처리|완료|페이지 저장|이미지 병합본 처리 후 진행 재개|
 |이미지 처리|완료|병합된 페이지 분할|규격 범위 설정 필요|
 |이미지 처리| |페이지 내 요소 색인/추출| |
 |이미지 처리| |메타데이터(요소) 규격화| |
@@ -58,7 +58,7 @@
 
 ## 🧾 포맷 예시
 
-### elements.json
+### ❓ (미확정) elements.json
 ```json
 [
   {
@@ -85,62 +85,35 @@
   }
 ]
 ```
-### pages.json
+### 📌 pages.json
 ```json
 [
   {
     "doc_id": "0003040d-0f71-4729-bd3b-733f3c8962bf",
-    "page_id": "0003040d-0f71-4729-bd3b-733f3c8962bf_p1",
-    "origin_page": 1,
     "page": 1,
     "slice_index": 0,
-    "object_type": "page",
-    "describe": "1페이지",
-    "width": 2331,
-    "height": 3308,
-    "dpi": 400,
-    "origin_bbox": {"left": 0, "top": 0, "right": 2331, "bottom": 3308},
-    "bbox": {"left": 0, "top": 0, "right": 2331, "bottom": 3308},
-    "mode": "RGB",
-    "source": "TEST-ALPHA01.pdf",
-    "path": "../ex_data/TEST-ALPHA01.pdf",
-    "created_at": "2025-10-21T18:14:35"
+    "language":"ko",
+    "source": "../ex_data/TEST-ALPHA01.pdf",
+    "image": "../artifacts/TEST-ALPHA01_ko_p1_0.png",
+    "modified_at": "2024-09-06T01:57:29Z"
   },
   {
-    "uid": "0003040d-0f71-4729-bd3b-733f3c8962bf",
-    "page_id": "0003040d-0f71-4729-bd3b-733f3c8962bf_p2",
-    "origin_page": 2,
+    "doc_id": "0003040d-0f71-4729-bd3b-733f3c8962bf",
     "page": 2,
     "slice_index": 0,
-    "object_type": "page",
-    "describe": "2페이지 중 1번째 분리본",
-    "width": 2331,
-    "height": 3308,
-    "dpi": 400,
-    "origin_bbox": {"left": 0, "top": 0, "right": 4662, "bottom": 3308},
-    "bbox": {"left": 0, "top": 0, "right": 2331, "bottom": 3308},
-    "mode": "RGB",
-    "source": "TEST-ALPHA01.pdf",
-    "path": "../ex_data/TEST-ALPHA01.pdf",
-    "created_at": "2025-10-21T18:14:37"
+    "language":"ko",
+    "source": "../ex_data/TEST-ALPHA01.pdf",
+    "image": "../artifacts/TEST-ALPHA01_ko_p2_0.png",
+    "modified_at": "2024-09-06T01:57:29Z"
   },
   {
-    "uid": "0003040d-0f71-4729-bd3b-733f3c8962bf",
-    "page_id": "0003040d-0f71-4729-bd3b-733f3c8962bf_p2",
-    "origin_page": 2,
-    "page": 3,
+    "doc_id": "0003040d-0f71-4729-bd3b-733f3c8962bf",
+    "page": 2,
     "slice_index": 1,
-    "object_type": "page",
-    "describe": "2페이지 중 2번째 분리본",
-    "width": 2331,
-    "height": 3308,
-    "dpi": 400,
-    "origin_bbox": {"left": 0, "top": 0, "right": 4662, "bottom": 3308},
-    "bbox": {"left": 2331, "top": 0, "right": 4662, "bottom": 3308},
-    "mode": "RGB",
-    "source": "TEST-ALPHA01.pdf",
-    "path": "../ex_data/TEST-ALPHA01.pdf",
-    "created_at": "2025-10-21T18:14:38"
-  },
+    "language":"ko",
+    "source": "../ex_data/TEST-ALPHA01.pdf",
+    "image": "../artifacts/TEST-ALPHA01_ko_p2_1.png",
+    "modified_at": "2024-09-06T01:57:29Z"
+  }
 ]
 ```
