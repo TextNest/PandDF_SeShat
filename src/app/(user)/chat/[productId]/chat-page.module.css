@@ -13,7 +13,9 @@
   padding: var(--spacing-md);
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-light);
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .productId {
@@ -151,8 +153,10 @@
 }
 
 .sendButton:disabled {
-  background-color: var(--color-gray-300);
+  background: #e0e0e0;
+  color: #999;
   cursor: not-allowed;
+  opacity: 0.6; /* 항상 보이지만 옅게 */
 }
 
 .sendButton:active:not(:disabled) {
@@ -286,4 +290,47 @@
     top: 0.5rem;
     right: 0.5rem;
   }
+}
+
+/* chat-page.module.css에 추가 */
+.productActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.simulationButton {
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.simulationButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 🆕 내 대화 버튼 스타일 추가 */
+.myChatsButton {
+  padding: 0.5rem 1rem;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.myChatsButton:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
