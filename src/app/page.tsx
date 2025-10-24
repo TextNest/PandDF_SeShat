@@ -2,7 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { MessageSquare, QrCode, Sparkles, BookOpen, Clock, Shield } from 'lucide-react';
+import { MessageSquare, QrCode, Sparkles, BookOpen, Clock, Shield, Settings } from 'lucide-react';
+import { useState } from 'react';
 import { useEffect } from 'react';
 import styles from './page.module.css';
 import { toast } from '@/store/useToastStore';
@@ -10,6 +11,7 @@ import { toast } from '@/store/useToastStore';
 export default function HomePage() {
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
+  const [showDevTools, setShowDevTools] = useState(false); // 🆕 개발자 도구 토글
 
   // 이미 로그인된 경우 자동 리디렉션
   useEffect(() => {
@@ -143,6 +145,102 @@ export default function HomePage() {
           </button>
         </div>
       </footer>
+
+      {/* 🆕 개발자 도구 플로팅 버튼 */}
+      <div className={styles.devTools}>
+        <button
+          className={styles.devToolsButton}
+          onClick={() => setShowDevTools(!showDevTools)}
+          title="개발자 도구"
+        >
+          <Settings size={24} />
+        </button>
+
+        {showDevTools && (
+          <div className={styles.devToolsPanel}>
+            <div className={styles.devToolsHeader}>
+              <h3>🔧 개발자 도구</h3>
+              <button
+                className={styles.closeButton}
+                onClick={() => setShowDevTools(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={styles.devToolsContent}>
+              {/* 인증 */}
+              <div className={styles.devSection}>
+                <h4>🔐 인증</h4>
+                <a href="/admin/login" className={styles.devLink}>
+                  관리자 로그인
+                </a>
+                <a href="/admin/register" className={styles.devLink}>
+                  관리자 회원가입
+                </a>
+                <a href="/login" className={styles.devLink}>
+                  일반 사용자 로그인
+                </a>
+              </div>
+
+              {/* 일반 사용자 */}
+              <div className={styles.devSection}>
+                <h4>👤 일반 사용자</h4>
+                <a href="/chat/test-product" className={styles.devLink}>
+                  챗봇 (테스트 제품)
+                </a>
+                <a href="/my" className={styles.devLink}>
+                  내 대화 목록
+                </a>
+              </div>
+
+              {/* 관리자 */}
+              <div className={styles.devSection}>
+                <h4>🏢 관리자</h4>
+                <a href="/dashboard" className={styles.devLink}>
+                  기업 관리자 대시보드
+                </a>
+                <a href="/documents" className={styles.devLink}>
+                  문서 관리
+                </a>
+                <a href="/faq" className={styles.devLink}>
+                  FAQ 관리
+                </a>
+                <a href="/logs" className={styles.devLink}>
+                  로그 분석
+                </a>
+                <a href="/products" className={styles.devLink}>
+                  제품 관리
+                </a>
+                <a href="/profile" className={styles.devLink}>
+                  프로필 설정
+                </a>
+              </div>
+
+              {/* 슈퍼 관리자 */}
+              <div className={styles.devSection}>
+                <h4>🔴 슈퍼 관리자</h4>
+                <a href="/superadmin" className={styles.devLink}>
+                  슈퍼 관리자 대시보드
+                </a>
+                <a href="/superadmin/companies" className={styles.devLink}>
+                  기업 관리
+                </a>
+                <a href="/superadmin/users" className={styles.devLink}>
+                  사용자 관리
+                </a>
+                <a href="/superadmin/settings" className={styles.devLink}>
+                  시스템 설정
+                </a>
+              </div>
+            </div>
+
+            <div className={styles.devToolsFooter}>
+              <small>⚠️ 개발 전용 - 프로덕션에서는 제거됩니다</small>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

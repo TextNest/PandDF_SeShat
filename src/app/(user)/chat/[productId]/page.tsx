@@ -134,23 +134,21 @@ export default function ChatPage({
           </div>
         )}
 
-        {/* 제품 정보 헤더 */}
+        {/* 제품 정보 헤더 - 버튼들 제거 */}
         <div className={styles.productInfo}>
           <p className={styles.productId}>제품: {params.productId}</p>
-          {isAuthenticated && (
-            <button
-              className={styles.myChatsButton}
-              onClick={() => router.push('/my')}
-            >
-              내 대화
-            </button>
-          )}
         </div>
 
         {/* 메시지 영역 */}
         <div className={styles.messageArea}>
-          {messages.map((message) => (
-            <ChatMessage key={message.id} message={message} />
+          {messages.map((message, index) => (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              sessionId={sessionId}
+              productId={params.productId}
+              isFirstMessage={index === 0} // 🆕 추가
+            />
           ))}
 
           {isLoading && <TypingIndicator />}

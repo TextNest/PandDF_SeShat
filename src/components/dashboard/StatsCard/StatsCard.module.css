@@ -1,6 +1,6 @@
-/* // ============================================
-// 📄 4. src/components/dashboard/StatsCard/StatsCard.module.css
-// ============================================ */
+/* ============================================
+   📄 4. src/components/dashboard/StatsCard/StatsCard.module.css
+   ============================================ */
 
 .card {
   background-color: var(--bg-primary);
@@ -32,19 +32,20 @@
   color: white;
 }
 
-.primary .iconWrapper {
+/* 🔥 수정된 색상 선택자 */
+.card.primary .iconWrapper {
   background-color: var(--color-primary);
 }
 
-.success .iconWrapper {
+.card.success .iconWrapper {
   background-color: var(--color-success);
 }
 
-.secondary .iconWrapper {
+.card.secondary .iconWrapper {
   background-color: var(--color-secondary);
 }
 
-.warning .iconWrapper {
+.card.warning .iconWrapper {
   background-color: var(--color-warning);
 }
 

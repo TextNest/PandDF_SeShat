@@ -16,9 +16,9 @@ export function useChat(productId: string) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      type: 'bot',
+      role: 'assistant', // 🆕 type → role, bot → assistant
       content: '안녕하세요! 무엇을 도와드릴까요?',
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(), // 🆕 Date → string
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,9 +58,9 @@ export function useChat(productId: string) {
 
     const userMessage: Message = {
       id: `user-${Date.now()}`,
-      type: 'user',
+      role: 'user', // 🆕 type → role
       content: content.trim(),
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(), // 🆕 Date → string
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -81,9 +81,9 @@ export function useChat(productId: string) {
 
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
-        type: 'bot',
+        role: 'assistant', // 🆕 type → role, bot → assistant
         content: response.data.response,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(), // 🆕 Date → string
         sources: response.data.sources,
       };
 
@@ -93,9 +93,9 @@ export function useChat(productId: string) {
       
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        type: 'bot',
+        role: 'assistant', // 🆕 type → role, bot → assistant
         content: '죄송합니다. 응답을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요.',
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(), // 🆕 Date → string
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -117,9 +117,9 @@ export function useChat(productId: string) {
     setMessages([
       {
         id: '1',
-        type: 'bot',
+        role: 'assistant', // 🆕 type → role, bot → assistant
         content: '안녕하세요! 무엇을 도와드릴까요?',
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(), // 🆕 Date → string
       }
     ]);
   }, [startNewSession]);
@@ -129,9 +129,9 @@ export function useChat(productId: string) {
     setMessages([
       {
         id: '1',
-        type: 'bot',
+        role: 'assistant', // 🆕 type → role, bot → assistant
         content: '안녕하세요! 무엇을 도와드릴까요?',
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(), // 🆕 Date → string
       }
     ]);
   }, []);

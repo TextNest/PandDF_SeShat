@@ -6,15 +6,15 @@
 
 export interface Message {
   id: string;
-  type: 'user' | 'bot';
+  role: 'user' | 'assistant'; // 🔥 type → role, bot → assistant
   content: string;
-  timestamp: Date;
+  timestamp: string; // 🔥 Date → string
   sources?: Source[];
   isStreaming?: boolean;
 }
 
 export interface Source {
-  page: number;
+  pageNumber: number; // 🔥 page → pageNumber
   content: string;
   documentName: string;
 }
