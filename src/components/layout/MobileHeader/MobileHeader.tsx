@@ -25,7 +25,10 @@ export default function MobileHeader() {
 
   return (
     <header className={styles.header}>
-      <h1 className={styles.title}>SeShat</h1>
+      <div className={styles.titleContainer}>
+        <h1 className={styles.title} onClick={() => router.push('/')}>SeShat</h1>
+        <button onClick={() => router.push('/simulation/ar')} className={styles.arButton}>AR</button>
+      </div>
       
       <button 
         className={styles.authButton}
