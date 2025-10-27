@@ -1,0 +1,103 @@
+# =========================================================
+# SeShat Project - Git Ignore Configuration (for GitHub)
+# ---------------------------------------------------------
+# 목적:
+#   - 로컬 전처리 산출물은 제외
+#   - 벡터 인덱스(FAISS)만 깃허브에 업로드
+# =========================================================
+
+
+# ------------------------------
+# 🧠 Python / Virtual Environment
+# ------------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
+venv/
+env/
+ENV/
+*.egg
+build/
+dist/
+.eggs/
+
+
+# ------------------------------
+# ⚙️ OS / IDE / Editor
+# ------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.iml
+*.log
+logs/
+nohup.out
+
+
+# ------------------------------
+# 🔐 환경 변수 / 보안 파일
+# ------------------------------
+.env
+.env.*
+*.key
+*.pem
+
+
+# ------------------------------
+# 🗃️ 데이터 / 모델 / 캐시
+# ------------------------------
+# 기본적으로 data 전체 무시
+Backend/data/*
+
+# 단, FAISS 인덱스만 추적
+!Backend/data/faiss_index/
+!Backend/data/faiss_index/**
+!Backend/data/faiss_index/.gitkeep
+
+# 나머지 폴더는 무시
+Backend/data/image_store/
+Backend/data/ocr_texts/
+Backend/data/ocr_texts_cleaned/
+Backend/data/chunk_store/
+Backend/data/image_captions/
+Backend/data/tmp/
+Backend/data/cache/
+
+
+# ------------------------------
+# 📦 Dependencies / 빌드 산출물
+# ------------------------------
+pip-wheel-metadata/
+site-packages/
+*.whl
+*.egg
+
+
+# ------------------------------
+# 🧪 테스트 / 임시 파일
+# ------------------------------
+temp/
+tmp/
+*.tmp
+test_*.py
+scratch/
+notebooks/
+*.ipynb_checkpoints/
+
+
+# ------------------------------
+# 🧭 기타
+# ------------------------------
+.cache/
+*.bak
+*.old
+*.swp
+*.swo
+.settings/

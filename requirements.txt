@@ -1,0 +1,145 @@
+# =========================================================
+# SeShat - Intelligent Document Understanding & RAG System
+# ---------------------------------------------------------
+# 버전: 2025.10.27 (Windows + CUDA 11.8 + Python 3.11 기준)
+# 목적:
+#   - PDF 매뉴얼 → 텍스트/OCR/이미지 캡션 → 벡터 인덱싱 → 질의응답
+#   - OCR + Vision + LangChain RAG 기반의 End-to-End 파이프라인
+# =========================================================
+
+# ---------------------------------------------------------
+# ⚙️ [0] 필수 시스템 환경 (설치 전 참고)
+# ---------------------------------------------------------
+# ✅ Python 버전: 3.10 ~ 3.11
+# ✅ CUDA 버전: 11.8 (GTX 1650Ti / RTX 시리즈 완벽 호환)
+# ✅ 가상환경 생성:
+#      python -m venv venv
+#      venv\Scripts\activate
+# ✅ CUDA 버전별 PyTorch 설치 (아래 명령을 반드시 먼저 실행)
+#      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# ---------------------------------------------------------
+
+# 💡 설치 순서 요약
+# 1. 가상환경 생성 및 활성화
+# python -m venv venv
+# venv\Scripts\activate
+#
+# 2. CUDA 대응 PyTorch 설치
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+#
+# 3. 본 requirements.txt 설치
+# pip install -r requirements.txt
+#
+# 4. (Windows 전용) Tesseract OCR 설치 후 경로 등록
+# C:\Program Files\Tesseract-OCR\tesseract.exe
+# ---------------------------------------------------------
+
+
+# =========================================================
+# 1️⃣ Core Framework
+# =========================================================
+fastapi==0.115.4             # 비동기 API 서버 프레임워크
+uvicorn==0.30.6              # FastAPI용 ASGI 서버
+jinja2==3.1.6                # HTML 템플릿 엔진
+python-dotenv==1.0.1         # .env 환경변수 로드
+
+
+# =========================================================
+# 2️⃣ Authentication / Security
+# =========================================================
+python-jose==3.3.0           # JWT 토큰 암호화
+passlib[bcrypt]==1.7.4       # 비밀번호 해시
+
+
+# =========================================================
+# 3️⃣ Database (Async MySQL + ORM)
+# =========================================================
+SQLAlchemy==2.0.36           # ORM 기반 모델 정의
+aiomysql==0.2.0              # 비동기 MySQL 연결 지원
+
+
+# =========================================================
+# 4️⃣ PDF & Image Processing (전처리 핵심)
+# =========================================================
+PyMuPDF==1.24.10             # PDF 파싱 및 이미지 추출
+pdfplumber==0.11.4           # 텍스트 계층형 추출
+pillow==12.0.0               # 이미지 처리 라이브러리
+opencv-python==4.10.0.84     # 이미지 전처리 (OCR 대비)
+tqdm==4.67.1                 # 진행률 표시 (Progress Bar)
+
+
+# =========================================================
+# 5️⃣ OCR (Tesseract 기반)
+# =========================================================
+pytesseract==0.3.13          # 이미지 텍스트 인식 (한글/영문)
+# ⚠️ 외부 종속성 (Windows):
+#   - https://github.com/UB-Mannheim/tesseract/wiki
+#   설치 후 환경변수 추가:
+#     setx TESSDATA_PREFIX "C:\Program Files\Tesseract-OCR\tessdata"
+#     setx PATH "%PATH%;C:\Program Files\Tesseract-OCR"
+# Linux/Mac: sudo apt install tesseract-ocr
+
+
+# =========================================================
+# 6️⃣ AI Vision (이미지 캡션 / 문서 요약)
+# =========================================================
+transformers==4.57.1         # HuggingFace Transformers
+huggingface-hub==0.36.0      # 모델 다운로드/관리
+sentencepiece==0.2.1         # Donut 토크나이저
+protobuf==5.28.3             # Donut 변환기 필수
+safetensors==0.6.2           # 모델 가속 저장 포맷
+accelerate==0.34.2           # 대형 모델 자동 분산 관리
+
+# ✅ 사용 모델
+#   - BLIP v1 (Salesforce/blip-image-captioning-large)
+#   - Donut (naver-clova-ix/donut-base)
+# ✅ GPU 메모리: 4GB 이상 권장 (FP16 자동 적용)
+# ✅ 실행 예시:
+#   python -m Backend.module.document_processor.image_captioner_hybrid
+
+
+# =========================================================
+# 7️⃣ Vector DB / RAG (지식 검색 + 질의응답)
+# =========================================================
+faiss-cpu==1.8.0.post1       # 벡터 유사도 검색
+langchain==0.3.4             # RAG 파이프라인 핵심 프레임워크
+langchain-core==0.3.12
+langchain-community==0.3.3
+openai==1.44.1               # OpenAI API (LLM/RAG)
+# ✅ GPU 없이도 작동 가능
+# ✅ 결과 저장:
+#   /data/faiss_index/{product}/index.faiss, /data/faiss_index/{product}/docstore.pkl
+
+
+# =========================================================
+# 8️⃣ Utility / System Tools
+# =========================================================
+requests==2.32.3             # API 요청
+typing-extensions==4.12.2    # 타입 확장 지원
+numpy==2.1.2                 # 수치 계산
+regex==2025.10.23            # 정규식 (OCR 텍스트 클린업)
+colorama==0.4.6              # 콘솔 컬러 출력
+
+
+# =========================================================
+# 9️⃣ Optional (성능/환경 관련)
+# =========================================================
+# accelerate>=0.34.0
+# sentencepiece>=0.2.1
+# huggingface_hub[hf_xet]     # Xet Storage 가속 다운로드
+# pip install protobuf>=5.0.0 # Donut 필수 (이미 상단 포함)
+# =========================================================
+
+
+# =========================================================
+# 🚀 실행 요약
+# =========================================================
+# PDF 구조 분석: python -m Backend.module.document_processor.pdf_classifier
+# OCR 추출: python -m Backend.module.document_processor.ocr_extractor
+# OCR 정제: python -m Backend.module.document_processor.ocr_cleaner
+# 이미지 캡션: python -m Backend.module.document_processor.image_captioner_blip
+# 하이브리드 캡션: python -m Backend.module.document_processor.image_captioner_hybrid
+# RAG 인덱싱: python -m Backend.module.document_processor.document_pr
+# 벡터 구축: python -m Backend.module.document_processor.vector_db_manager
+# 질의응답: python -m Backend.module.qa_service_chat
+# =========================================================
