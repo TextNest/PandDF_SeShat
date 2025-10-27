@@ -43,7 +43,7 @@ const ARScene: React.FC<ARSceneProps> = ({ uiOverlayRef, lastUITouchTimeRef }) =
 
   // --- Custom Hooks ---
   const measurement = useMeasurement(sceneRef);
-  const furniture = useFurniturePlacement(sceneRef, selectFurniture, isARActive);
+  const furniture = useFurniturePlacement(sceneRef, selectFurniture, isARActive, setDebugMessage);
   const { didDragRef } = useObjectRotation(furniture.previewBoxRef, isPreviewing);
 
   useEffect(() => {
@@ -52,11 +52,7 @@ const ARScene: React.FC<ARSceneProps> = ({ uiOverlayRef, lastUITouchTimeRef }) =
 
   useEffect(() => {
     if (selectedFurniture) {
-      furniture.createPreviewBox({
-        width: selectedFurniture.width || 0.5,
-        depth: selectedFurniture.depth || 0.5,
-        height: selectedFurniture.height || 0.5,
-      });
+      furniture.createPreviewBox(selectedFurniture);
     } else {
       furniture.clearPreviewBox();
     }
@@ -75,20 +71,33 @@ const ARScene: React.FC<ARSceneProps> = ({ uiOverlayRef, lastUITouchTimeRef }) =
   }, [clearMeasurementCounter, measurement]);
 
   const handleEndAR = useCallback(() => {
-    setDebugMessage('handleEndAR called');
-    setARActive(false);
-    setIsScanning(false);
+    setDebugMessage('AR 종료 중...');
+    
+    rendererRef.current?.setAnimationLoop(null);
+
     const session = rendererRef.current?.xr.getSession();
     if (session) {
-      setDebugMessage('session found, calling session.end()');
-      session.onselect = null;
-      session.end();
-    } else {
-      setDebugMessage('session not found');
+        session.end().catch(error => {
+            console.error("세션 종료 오류:", error);
+            setDebugMessage(`세션 종료 오류: ${(error as Error).message}`);
+        });
     }
-    if (containerRef.current) containerRef.current.innerHTML = '';
+
+    setARActive(false);
+    setIsScanning(false);
     measurement.clearPoints();
     furniture.clearPlacedBoxes();
+    
+    if (rendererRef.current) {
+        rendererRef.current.dispose();
+        rendererRef.current = null;
+    }
+
+    hitTestSourceRef.current = null;
+    xrRefSpaceRef.current = null;
+    
+    setDebugMessage('AR 세션 종료 요청됨.');
+
   }, [setARActive, measurement, furniture, setDebugMessage]);
 
   useEffect(() => {

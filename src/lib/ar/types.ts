@@ -4,4 +4,5 @@ export interface FurnitureItem {
   width: number;
   depth: number;
   height: number;
+  modelUrl?: string;
 }

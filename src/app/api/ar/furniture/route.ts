@@ -5,7 +5,7 @@ import pool from '@/lib/ar/db';
 export async function GET() {
   try {
     const connection = await pool.getConnection();
-    const [rows] = await connection.query('SELECT id, name, width, depth, height FROM dohun');
+    const [rows] = await connection.query('SELECT id, name, width, depth, height, modelurl as modelUrl FROM dohun');
     connection.release();
     return NextResponse.json(rows);
   } catch (error) {

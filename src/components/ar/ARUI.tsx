@@ -55,7 +55,7 @@ export default function ARUI({ lastUITouchTimeRef }: { lastUITouchTimeRef: React
   };
 
   const handleEndAR = () => {
-    triggerEndAR();
+    window.location.reload();
   };
 
   return (
