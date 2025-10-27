@@ -25,7 +25,7 @@ export default function MobileHeader() {
 
   return (
     <header className={styles.header}>
-      <h1 className={styles.title}>SeShat</h1>
+      <h1 className={styles.title}>ManuAI-Talk</h1>
       
       <button 
         className={styles.authButton}

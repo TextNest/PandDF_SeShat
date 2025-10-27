@@ -12,7 +12,7 @@ export default function Footer() {
       <div className={styles.container}>
         <div className={styles.content}>
           <div className={styles.section}>
-            <h3>SeShat</h3>
+            <h3>ManuAI-Talk</h3>
             <p className={styles.description}>
               AI 기반 제품 설명서 질의응답 시스템
             </p>
@@ -29,14 +29,14 @@ export default function Footer() {
           <div className={styles.section}>
             <h4>문의</h4>
             <ul className={styles.links}>
-              <li>이메일: contact@seshat.com</li>
+              <li>이메일: contact@manuai-talk.com</li>
               <li>전화: 02-1234-5678</li>
             </ul>
           </div>
         </div>
         
         <div className={styles.copyright}>
-          <p>&copy; 2025 SeShat. All rights reserved.</p>
+          <p>&copy; 2025 ManuAI-Talk. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -12,7 +12,7 @@ export default function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-          <h1>SeShat</h1>
+          <h1>ManuAI-Talk</h1>
         </Link>
         
         <nav className={styles.nav}>

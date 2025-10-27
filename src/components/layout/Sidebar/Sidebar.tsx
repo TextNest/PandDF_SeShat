@@ -51,7 +51,7 @@ export default function Sidebar() {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logo}>
-        <h2>SeShat</h2>
+        <h2>ManuAI-Talk</h2>
         <span className={styles.badge}>Admin</span>
       </div>
       

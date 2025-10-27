@@ -39,16 +39,8 @@ export default function SimulationPage() {
         onDeleteSession={handleDeleteSession}
       />
 
-      {/* 헤더 */}
+      {/* 헤더 - 간소화 */}
       <header className={styles.header}>
-        <button 
-          className={styles.backButton}
-          onClick={() => router.push(`/chat/${productId}`)}
-        >
-          <ArrowLeft size={20} />
-          <span>채팅으로 돌아가기</span>
-        </button>
-
         <div className={styles.headerTitle}>
           <Move3d size={24} className={styles.headerIcon} />
           <div>
@@ -66,7 +58,7 @@ export default function SimulationPage() {
             <Maximize2 size={64} className={styles.placeholderIcon} />
             <h2>AR/3D 시뮬레이션 영역</h2>
             <p>이 영역에 AR 또는 3D 시뮬레이션 기능이 구현됩니다</p>
-            
+
             <div className={styles.specs}>
               <h3>구현 예정 기능:</h3>
               <ul>

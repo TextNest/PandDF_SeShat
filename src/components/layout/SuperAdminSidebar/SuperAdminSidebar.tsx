@@ -42,7 +42,7 @@ export default function SuperAdminSidebar() {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.header}>
-        <h1 className={styles.logo}>SeShat</h1>
+        <h1 className={styles.logo}>ManuAI-Talk</h1>
         <p className={styles.subtitle}>슈퍼 관리자</p>
       </div>
 

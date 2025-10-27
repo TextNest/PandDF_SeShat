@@ -5,10 +5,10 @@
   background: white;
 }
 
-/* 히어로 섹션 */
+/* 히어로 섹션 - 다시 전체 화면 */
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: 100vh; /* 🔥 85vh → 100vh (다시 꽉 채움) */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,48 +115,85 @@
   margin-bottom: 3rem;
 }
 
-/* CTA 버튼 */
-.ctaButtons {
+/* 🆕 Quick Actions (검색창 아래) */
+.quickActions {
   display: flex;
-  flex-direction: column;
   gap: 1rem;
+  margin-top: 2rem;
   margin-bottom: 2rem;
 }
-
-.primaryButton {
-  padding: 1rem 2rem;
-  background: white;
-  color: #667eea;
-  border: none;
-  border-radius: 0.75rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  cursor: pointer;
+/* 🆕 스크롤 인디케이터 - 자연스러운 배치 */
+.scrollIndicator {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  gap: 0.5rem;
+  margin-top: 3rem; /* 🔥 absolute 제거, margin으로 간격 조정 */
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  padding-bottom: 2rem; /* 아래 여백 */
 }
 
-.primaryButton:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+.scrollText {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
 }
 
-.googleIcon {
-  width: 24px;
-  height: 24px;
+.scrollArrow {
+  font-size: 1.5rem;
+  color: white;
+  animation: arrowBounce 2s infinite;
 }
 
-.secondaryButton {
-  padding: 1rem 2rem;
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes arrowBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(8px);
+  }
+  60% {
+    transform: translateY(4px);
+  }
+}
+
+/* 클릭 시 부드러운 스크롤 */
+.html {
+  scroll-behavior: smooth;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+  .hero {
+    min-height: 100vh; /* 모바일도 전체 화면 */
+  }
+  
+  .scrollIndicator {
+    bottom: 2rem; /* 모바일에서는 조금 더 아래 */
+  }
+}
+
+.qrButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: 2px solid white;
   border-radius: 0.75rem;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -167,14 +204,37 @@
   backdrop-filter: blur(10px);
 }
 
-.secondaryButton:hover {
+.qrButton:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
-.hint {
+.loginButton {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 0.75rem;
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.loginButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.googleIcon {
+  width: 20px;
+  height: 20px;
 }
 
 /* 기능 소개 섹션 */
@@ -481,3 +541,4 @@
     right: -1rem;
   }
 }
+
