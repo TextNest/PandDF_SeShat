@@ -6,7 +6,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SeShat',
+  title: 'ManuAI-Talk',
   description: 'AI 기반 제품 설명서 질의응답 시스템',
 };
 

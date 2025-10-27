@@ -5,7 +5,7 @@
 // ============================================
 
 export const APP_CONFIG = {
-  NAME: 'SeShat',
+  NAME: 'ManuAI-Talk',
   DESCRIPTION: 'LLM 기반 전자제품 설명서 질의응답 시스템',
   VERSION: '1.0.0',
   
@@ -34,8 +34,8 @@ export const APP_CONFIG = {
   
   // 로컬 스토리지 키
   STORAGE_KEYS: {
-    TOKEN: 'seshat_token',
-    USER: 'seshat_user',
-    THEME: 'seshat_theme',
+    TOKEN: 'manuai-talk_token',
+    USER: 'manuai-talk_user',
+    THEME: 'manuai-talk_theme',
   },
 } as const;

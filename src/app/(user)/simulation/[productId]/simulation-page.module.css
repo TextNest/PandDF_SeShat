@@ -5,34 +5,14 @@
   background: #f8f9fa;
 }
 
-/* 헤더 */
+/* 헤더 - 중앙 정렬 */
 .header {
   background: white;
   border-bottom: 1px solid #e0e0e0;
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
-  gap: 2rem;
-}
-
-.backButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 0.5rem;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.875rem;
-}
-
-.backButton:hover {
-  background: #e9ecef;
-  border-color: #667eea;
-  color: #667eea;
+  justify-content: center; /* 🔥 중앙 정렬 */
 }
 
 .headerTitle {

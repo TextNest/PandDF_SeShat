@@ -17,7 +17,7 @@ const mockUsers: User[] = [
   {
     id: '1',
     name: '슈퍼 관리자',
-    email: 'super@seshat.com',
+    email: 'super@manuai-talk.com',
     role: 'super_admin',
     status: 'active',
     createdAt: '2024-01-01',

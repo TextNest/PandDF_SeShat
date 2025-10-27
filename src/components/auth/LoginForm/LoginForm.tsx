@@ -29,7 +29,7 @@ export default function LoginForm() {
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.header}>
         <h1>관리자 로그인</h1>
-        <p>SeShat 관리자 대시보드에 접속하세요</p>
+        <p>ManuAI-Talk 관리자 대시보드에 접속하세요</p>
       </div>
 
       {error && (
@@ -46,7 +46,7 @@ export default function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@seshat.com"
+              placeholder="admin@manuai-talk.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -98,7 +98,7 @@ export default function LoginForm() {
         <div className={styles.hint}>
           <p className={styles.hintTitle}>💡 테스트 계정</p>
           <ul className={styles.accounts}>
-            <li><strong>슈퍼 관리자:</strong> super@seshat.com / super123</li>
+            <li><strong>슈퍼 관리자:</strong> super@manuai-talk.com / super123</li>
             <li><strong>삼성전자:</strong> admin@samsung.com / admin123</li>
             <li><strong>LG전자:</strong> admin@lg.com / admin123</li>
           </ul>

@@ -1,10 +1,10 @@
-# SeShat - AI 기반 제품 설명서 질의응답 시스템
+# ManuAI-Talk - AI 기반 제품 설명서 질의응답 시스템
 
 LLM을 활용한 PDF 문서 요약 및 질의응답 기능 개발 프로젝트
 
 ## 📋 프로젝트 개요
 
-**SeShat**은 전자제품 설명서를 AI 기반으로 분석하고, 사용자의 질문에 실시간으로 답변하는 RAG(Retrieval-Augmented Generation) 시스템입니다.
+**ManuAI-Talk**은 전자제품 설명서를 AI 기반으로 분석하고, 사용자의 질문에 실시간으로 답변하는 RAG(Retrieval-Augmented Generation) 시스템입니다.
 
 - **팀명**: P&DF
 - **기술 스택**: Next.js 14 (App Router), TypeScript, CSS Modules, Zustand, React Query
@@ -80,7 +80,7 @@ LLM을 활용한 PDF 문서 요약 및 질의응답 기능 개발 프로젝트
 ### 테스트 계정
 ```typescript
 // 슈퍼 관리자
-super@seshat.com / super123
+super@manuai-talk.com / super123
 
 // 기업 관리자
 admin@samsung.com / admin123  // 삼성전자
@@ -96,7 +96,7 @@ HYUNDAI8   // 현대자동차
 
 ## 🏗️ 프로젝트 구조 (상세)
 ```
-seshat-frontend/
+manuai-talk-frontend/
 ├── src/
 │   ├── app/                          # Next.js 14 App Router
 │   │   ├── globals.css               # 🔥 CSS 변수 정의 (필수!)
@@ -925,7 +925,7 @@ vercel
 
 ### 환경 변수 설정
 ```
-NEXT_PUBLIC_API_URL=https://api.seshat.com
+NEXT_PUBLIC_API_URL=https://api.manuai-talk.com
 NEXTAUTH_SECRET=your-secret-here
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
