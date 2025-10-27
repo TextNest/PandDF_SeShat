@@ -23,7 +23,7 @@ def create_access_token(data:dict,expires_delta:Optional[timedelta]=None):
         expire = datetime.now(timezone.utc) + timedelta(minutes=Access_Token_Expire)
     expire_utc = expire.replace(tzinfo=timezone.utc)
     
-    # 🌟 디버깅 출력 🌟
+
     print("\n--- JWT 시간 디버깅 정보 ---")
     print(f"현재 시각 (UTC): {now_utc.isoformat()}")
     print(f"만료 시각 (UTC): {expire_utc.isoformat()}")
@@ -46,12 +46,12 @@ def get_current_user(authorization: Optional[str] = Header(None))-> companyInfo:
     token = authorization.split(" ")[1]
     try:
         payload = jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])
-        user = payload.get("id")
-        company_name = payload.get("company_name")
-        name = payload.get("name")
-
-        if not user or not company_name :
+        role = payload.get("role")
+        if role == "user":
+            return {"name":payload.get("name"),"email":payload.get("id")}
+        elif role == "company_admin":
+            return {"id":payload.get("id"),"name":payload.get("name"),"company_name":payload.get("company_name")}
+        if not role :
             raise HTTPException(status_code=401,detail="인증 오류 : 토큰에 필수 정보가 없습니다.")
-        return {"id":user,"company_name":company_name,"name":name}
     except JWTError:
         raise HTTPException(status_code=401,detail="인증 오류 : 토큰이 유효하지 않거나 만료되었습니다.")

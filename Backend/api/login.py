@@ -3,11 +3,15 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text 
 from typing import Dict, Any, List
+import os
+import httpx
 
-# core/dependencies.py에서 필요한 의존성 및 함수 임포트
 from core.auth import create_access_token,verify_password,get_password_hash,get_current_user
 from core.db_config import get_session
-
+from dotenv import load_dotenv
+load_dotenv()
+client_id = os.getenv("clinet_id")
+client_secret = os.getenv("clinet_secret")
 router = APIRouter()
 class LoginRequest(BaseModel):
     user_id: str
@@ -81,18 +85,95 @@ async def login_with_token(login_data:LoginRequest,session:AsyncSession=Depends(
         data ={
             "id":login_data.user_id,    
             "company_name":user_row["company_name"],
-            "name":user_row["name"]
+            "name":user_row["name"],
+            "role":"company_admin"
         } # expire 미 작성시 30분  작성법  expires_delta = timedelta(days=1)
     )
     return {
+        "user":{"name":user_row["name"],"company_name":user_row["company_name"],"role":"company_admin"},
         "access_token":access_token,
         "token_type":"Bearer"
     }
 companyInfo = Dict[str,str]
 
 @router.post("/user/me", response_model=companyInfo)
-async def get_user_info_from_token_post(
-    current_user_info: companyInfo = Depends(get_current_user)
+async def get_admin_info_from_token_post(
+    current_admin_info: companyInfo = Depends(get_current_user)
 ):
-    print("보냈습니다.",current_user_info)
-    return current_user_info
+    print("보냈습니다.",current_admin_info)
+    return current_admin_info
+
+
+
+
+class AuthCodeRequest(BaseModel):
+    code: str
+    redirect_uri: str
+
+user_query = """
+SELECT name
+FROM google_login
+WHERE email = :email
+"""
+
+@router.post("/google/callback")
+async def google_login_call_back(code_data:AuthCodeRequest,session:AsyncSession=Depends(get_session)):
+    token_url = "https://oauth2.googleapis.com/token"
+    token_data = {
+        "code": code_data.code,
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "redirect_uri": code_data.redirect_uri,
+        "grant_type": "authorization_code", 
+    }
+    print("데이터확인")
+    async with httpx.AsyncClient() as client:
+        response = await client.post(token_url, data=token_data)
+    print("서버 비교 중")
+    if response.status_code != 200:
+        print("Google Token Exchange Failed:", response.json())
+        raise HTTPException(status_code=400, detail="Failed to get token from Google.")
+
+    google_tokens = response.json()
+    google_id_token = google_tokens.get("id_token")
+    try:
+        import jwt
+        user_info =jwt.decode(
+            jwt = google_id_token,
+            options ={"verify_signature":False},
+            audience=client_id,
+            algorithms=["RS256"]
+            )
+        google_unique_id = user_info.get("sub")
+        google_email = user_info.get("email")
+        google_name = user_info.get("name")
+
+    except Exception as e:
+        print("ID Token Verification Failed:", e)
+        raise HTTPException(status_code=400, detail="Invalid Google ID Token.")
+    result = await session.execute(text(user_query),params={"email":google_email})
+    user_row = result.mappings().one_or_none()
+    if not user_row:
+        await session.execute(text("""INSERT INTO google_login(name,email) VALUES (:name,:email)"""),params={"name":google_name,"email":google_email})
+        await session.commit()
+        from datetime import timedelta
+        data ={
+            "id":google_email,    
+            "name":google_name,
+            "role":"user"
+        } 
+    else:
+        data ={
+            "id":google_email,    
+            "name":user_row["name"],
+            "role":"user"
+        } 
+    
+    access_token = create_access_token(
+        data=data
+    )
+    return {
+        "user":{"name":google_name,"role":"user"},
+        "access_token":access_token,
+        "token_type":"Bearer"
+    }
