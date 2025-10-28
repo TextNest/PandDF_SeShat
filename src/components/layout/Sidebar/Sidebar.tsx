@@ -11,37 +11,44 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
   FileText, 
-  MessageSquare, 
+  MessageCircle, 
   BarChart3, 
-  Package 
+  Package,
+  Settings
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
 const menuItems = [
-  { 
-    icon: LayoutDashboard, 
-    label: '대시보드', 
-    href: '/dashboard' 
+  {
+    icon: LayoutDashboard,
+    label: '대시보드',
+    href: '/dashboard',
   },
-  { 
-    icon: FileText, 
-    label: '문서 관리', 
-    href: '/documents' 
+  // 🔥 제품 관리를 문서 관리 앞으로!
+  {
+    icon: Package,
+    label: '제품 관리',
+    href: '/products',
   },
-  { 
-    icon: MessageSquare, 
-    label: 'FAQ 관리', 
-    href: '/faq' 
+  {
+    icon: FileText,
+    label: '문서 관리',
+    href: '/documents',
   },
-  { 
-    icon: BarChart3, 
-    label: '로그 분석', 
-    href: '/logs' 
+  {
+    icon: MessageCircle,
+    label: 'FAQ 관리',
+    href: '/faq',
   },
-  { 
-    icon: Package, 
-    label: '제품 관리', 
-    href: '/products' 
+  {
+    icon: BarChart3,
+    label: '로그 분석',
+    href: '/logs',
+  },
+  {
+    icon: Settings,
+    label: '설정',
+    href: '/profile',
   },
 ];
 

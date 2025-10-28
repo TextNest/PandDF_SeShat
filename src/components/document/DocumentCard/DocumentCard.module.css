@@ -251,3 +251,13 @@
   background-color: rgba(156, 163, 175, 0.1);
   color: #6b7280;
 }
+
+/* DocumentCard.module.css에 추가 */
+.description {
+  font-size: 0.875rem;
+  color: #999;
+  margin: 0.25rem 0 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
