@@ -8,13 +8,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  FileText, 
-  MoreVertical, 
-  Download, 
-  Trash2, 
-  Eye, 
-  Edit, 
+import {
+  FileText,
+  MoreVertical,
+  Download,
+  Trash2,
+  Eye,
+  Edit,
   Power,
   Copy
 } from 'lucide-react';
@@ -105,10 +105,10 @@ export default function DocumentCard({ document: doc }: DocumentCardProps) {
         <div className={styles.iconWrapper}>
           <FileText size={24} />
         </div>
-        
+
         {/* 케밥 메뉴 */}
         <div className={styles.menuWrapper} ref={menuRef}>
-          <button 
+          <button
             className={styles.menuButton}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
@@ -122,26 +122,26 @@ export default function DocumentCard({ document: doc }: DocumentCardProps) {
                 <Eye size={16} />
                 상세보기
               </button>
-              
+
               <button className={styles.dropdownItem} onClick={handleEdit}>
                 <Edit size={16} />
                 수정하기
               </button>
-              
+
               <button className={styles.dropdownItem} onClick={handleDownload}>
                 <Download size={16} />
                 다운로드
               </button>
-              
+
               <button className={styles.dropdownItem} onClick={handleDuplicate}>
                 <Copy size={16} />
                 복제하기
               </button>
 
               <div className={styles.divider} />
-              
-              <button 
-                className={styles.dropdownItem} 
+
+              <button
+                className={styles.dropdownItem}
                 onClick={handleToggleActive}
               >
                 <Power size={16} />
@@ -149,9 +149,9 @@ export default function DocumentCard({ document: doc }: DocumentCardProps) {
               </button>
 
               <div className={styles.divider} />
-              
-              <button 
-                className={`${styles.dropdownItem} ${styles.danger}`} 
+
+              <button
+                className={`${styles.dropdownItem} ${styles.danger}`}
                 onClick={handleDelete}
               >
                 <Trash2 size={16} />
@@ -163,8 +163,12 @@ export default function DocumentCard({ document: doc }: DocumentCardProps) {
       </div>
 
       <Link href={`/documents/${doc.id}`} className={styles.content}>
-        <h3 className={styles.title}>{doc.name}</h3>
+        {/* 🔥 순서 변경 */}
+        <h3 className={styles.title}>{doc.productName || '제품 정보 없음'}</h3>
         <p className={styles.filename}>{doc.fileName}</p>
+        {doc.name && (
+          <p className={styles.description}>{doc.name}</p>
+        )}
       </Link>
 
       <div className={styles.meta}>

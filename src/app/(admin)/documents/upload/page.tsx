@@ -1,24 +1,77 @@
 // ============================================
-// 📄 8. src/app/(admin)/documents/upload/page.tsx
+// 📄 src/app/(admin)/documents/upload/page.tsx
 // ============================================
-// 문서 업로드 페이지 (고도화)
+// 문서 업로드 페이지 (제품 선택 방식)
 // ============================================
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DocumentUploader from '@/components/document/DocumentUploader/DocumentUploader';
 import Button from '@/components/ui/Button/Button';
 import Input from '@/components/ui/Input/Input';
+import { Product } from '@/types/product.types';
 import styles from './upload-page.module.css';
+
+// TODO: [백엔드] 실제 API로 교체
+const mockProducts: Product[] = [
+  {
+    id: 'product-1',
+    name: '시스템 에어컨 2024',
+    model: 'AC-2024-001',
+    category: '에어컨',
+    status: 'active',
+    qrCodeUrl: '/chat/product-1',
+    documentIds: [],
+    viewCount: 0,
+    questionCount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: 'admin',
+  },
+  {
+    id: 'product-2',
+    name: '양문형 냉장고 프리미엄',
+    model: 'RF-2024-002',
+    category: '냉장고',
+    status: 'active',
+    qrCodeUrl: '/chat/product-2',
+    documentIds: [],
+    viewCount: 0,
+    questionCount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: 'admin',
+  },
+  {
+    id: 'product-3',
+    name: '드럼세탁기 AI',
+    model: 'WM-2024-003',
+    category: '세탁기',
+    status: 'active',
+    qrCodeUrl: '/chat/product-3',
+    documentIds: [],
+    viewCount: 0,
+    questionCount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    createdBy: 'admin',
+  },
+];
 
 export default function DocumentUploadPage() {
   const router = useRouter();
-  const [productName, setProductName] = useState('');
-  const [productId, setProductId] = useState('');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState('');
+  const [documentName, setDocumentName] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    // TODO: [백엔드] 제품 목록 API 호출
+    setProducts(mockProducts);
+  }, []);
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
@@ -27,20 +80,28 @@ export default function DocumentUploadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedFile || !productName) {
+    if (!selectedFile || !selectedProductId) {
       alert('필수 항목을 입력해주세요.');
       return;
     }
 
     setIsUploading(true);
 
-    // TODO: 실제 API 연동
+    // TODO: [백엔드] 실제 API 연동
+    console.log('업로드 데이터:', {
+      productId: selectedProductId,
+      documentName: documentName || undefined,
+      file: selectedFile,
+    });
+
     setTimeout(() => {
       setIsUploading(false);
       alert('업로드 완료!');
       router.push('/documents');
     }, 2000);
   };
+
+  const selectedProduct = products.find(p => p.id === selectedProductId);
 
   return (
     <div className={styles.page}>
@@ -53,22 +114,39 @@ export default function DocumentUploadPage() {
         <DocumentUploader onFileSelect={handleFileSelect} />
 
         <div className={styles.fields}>
-          <Input
-            label="제품명"
-            placeholder="예: 세탁기 WM-2024"
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            required
-            fullWidth
-          />
+          {/* 제품 선택 */}
+          <div className={styles.field}>
+            <label className={styles.label}>
+              제품 선택 <span className={styles.required}>*</span>
+            </label>
+            <select
+              value={selectedProductId}
+              onChange={(e) => setSelectedProductId(e.target.value)}
+              className={styles.select}
+              required
+            >
+              <option value="">제품을 선택하세요</option>
+              {products.map(product => (
+                <option key={product.id} value={product.id}>
+                  {product.name} ({product.model})
+                </option>
+              ))}
+            </select>
+            {selectedProduct && (
+              <p className={styles.helperText}>
+                선택된 제품: {selectedProduct.name} - {selectedProduct.model}
+              </p>
+            )}
+          </div>
 
+          {/* 문서명 (선택사항) */}
           <Input
-            label="제품 ID (선택사항)"
-            placeholder="예: WM-2024"
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
+            label="문서명 (선택사항)"
+            placeholder="예: 사용 설명서, 설치 가이드"
+            value={documentName}
+            onChange={(e) => setDocumentName(e.target.value)}
             fullWidth
-            helperText="제품 ID를 입력하면 해당 제품과 연결됩니다"
+            helperText="입력하지 않으면 파일명이 사용됩니다"
           />
         </div>
 
@@ -84,7 +162,7 @@ export default function DocumentUploadPage() {
             type="submit"
             variant="primary"
             loading={isUploading}
-            disabled={!selectedFile || !productName}
+            disabled={!selectedFile || !selectedProductId}
           >
             업로드
           </Button>
